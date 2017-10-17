@@ -51,19 +51,20 @@ BCOR15mm             % mehr li. Rand zum Binden der Arbeit
   numberstyle=\tiny}
 
 % hier Namen etc. einsetzen
-\newcommand{\fullname}{Vorname Nachname}
-\newcommand{\email}{vorname.nachname@uni-ulm.de}
+% TODO hier anpassen
+\newcommand{\fullname}{Florian Krötz}
+\newcommand{\email}{florian.kroetz@uni-ulm.de}
 \newcommand{\titel}{Der Titel der Arbeit, meist länger als eine Zeile}
 \newcommand{\jahr}{2017}
-\newcommand{\matnr}{123456}
+\newcommand{\matnr}{884948}
 \newcommand{\gutachterA}{Prof.~Dr.~Streng Geheim}
 \newcommand{\gutachterB}{Prof.~Dr.~Un Leserlich}
 \newcommand{\betreuer}{Betreuername}
 
 % hier die Fakultät auswählen
-\newcommand{\fakultaet}{---  Im Quellcode anpassen nicht vergessen! ---}
+%\newcommand{\fakultaet}{---  Im Quellcode anpassen nicht vergessen! ---}
 %\newcommand{\fakultaet}{Ingenieurwissenschaften, Informatik und Psychologie}
-%\newcommand{\fakultaet}{Mathematik und\\Wirtschafts-\\wissenschaften}
+\newcommand{\fakultaet}{Mathematik und\\Wirtschafts-\\wissenschaften}
 %\newcommand{\fakultaet}{Medizin}
 %\newcommand{\fakultaet}{Naturwissenschaften}
 
@@ -113,11 +114,11 @@ pdfborder=0 0 0	% keine Box um die Links!
 %{\bfseries Universität Ulm} \textbar ~89069 Ulm \textbar ~Germany
 \hspace*{115mm}\parbox[t]{35mm}{\bfseries Fakultät für\\
 \fakultaet\\
-% TODO hier Institut anpassen
+
 \mdseries \institut}\\[2cm]
 
 \parbox{140mm}{\bfseries \LARGE \titel}\\[2.5em]
-{\footnotesize Bachelorarbeit / Masterarbeit / Dissertation an der Universität Ulm}\\[3em]
+{\footnotesize Bachelorarbeit an der Universität Ulm}\\[3em]
 
 {\footnotesize \bfseries Vorgelegt von:}\\
 {\footnotesize \fullname\\\email}\\[2em]
@@ -153,11 +154,11 @@ pdfborder=0 0 0	% keine Box um die Links!
 
 \mainmatter
 \input{chapters/einleitung}
-% hier weitere Kapitel einbinden
+% TODO hier weitere Kapitel einbinden
 
 
 \appendix
-% hier Anhänge einbinden
+% TODO hier Anhänge einbinden
 \input{chapters/sources}
 
 \backmatter
