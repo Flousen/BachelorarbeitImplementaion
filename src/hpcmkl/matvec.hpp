@@ -19,5 +19,6 @@
 #include <hpc/matvec/densevector.hpp>
 
 #include <hpc/matvec/lu.hpp>
+#include <hpc/matvec/qr.hpp>
 
 #endif // HPC_MATVEC_HPP
