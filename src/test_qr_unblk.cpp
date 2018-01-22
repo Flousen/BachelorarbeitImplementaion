@@ -7,7 +7,7 @@
 #include <hpc/matvec/test/error.hpp>
 #include <hpc/matvec/test/rand.hpp>
 #include <hpc/matvec/test/walltime.hpp>
-#include <hpc/matvec/test/diagdom.hpp>
+#include <hpc/matvec/qr.hpp>
 
 #define MIN_M 10
 #define MIN_N 10
@@ -24,6 +24,6 @@ main()
   GeMatrix<double> A(MAX_M, MAX_N);
 
   test::rand(A);
-  test::diagdom(A);
+  qr_unblk(A)
 
 }
