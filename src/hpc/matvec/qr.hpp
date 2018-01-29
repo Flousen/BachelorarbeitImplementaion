@@ -20,21 +20,23 @@
 
 namespace hpc { namespace matvec {
 
-template <typename VectorV, typename A, typename T>
+template <typename VectorV, typename Alpha, typename Tau>
 void
-householderVector(VectorV &&v, A *alpha, T *tau)
+householderVector(Alpha &alpha, VectorV &&v, Tau &tau)
 {
+  print(v);
 
-  if (v.length() == 1)
-    tau = T(0);
+  if (v.length() == 0) {
+    tau = Tau(0);
+    return;
+  }
 
   //T xnorm = norm();
   auto dot = hpc::ulmblas::dot( v.length(),
               false, v.data(), v.inc(),
               false, v.data(), v.inc() );
-
-  if (dot == VectorV(0)){
-    tau = T(0);
+  if (dot == ElementType<VectorV>(0)){
+    tau = Tau(0);
   } else {
     auto beta = -std::copysign(sqrt(alpha*alpha + dot),alpha);
     tau = (beta - alpha) / beta;
@@ -44,10 +46,10 @@ householderVector(VectorV &&v, A *alpha, T *tau)
   
 }
 
-template <typename MatrixA,
-          Require< Ge<MatrixA> > = true>
-std::ptrdiff_t
-qr_unblk(MatrixA &&A)
+template <typename MatrixA, typename VectorTau,
+          Require< Ge<MatrixA>, Dense<VectorTau> > = true>
+void
+qr_unblk(MatrixA &&A, VectorTau &&tau)
 {
   using T = ElementType<MatrixA>;
   T AII = 0;
@@ -55,20 +57,22 @@ qr_unblk(MatrixA &&A)
   std::size_t n  = A.numCols();
   std::size_t mn = std::min(m,n);
 
-  DenseVector<T> tau(mn);
+  assert(tau.length() == mn);
 
+  DenseVector<T> work(mn);
   for (std::size_t i = 0; i < mn; ++i){
-    //householderVector(view_select(A.row(i,m-i)),A(i,i),tau(i));
-    if (i < n && tau(i) != 0) {
+    householderVector(A(i,i), A.col(i+1,i),tau(i));
+    if (i < n && tau(i) != T(0)) {
       AII = A(i,i);
       A(i,i) = T(1);
       
-      DenseVector<T> work(mn-i);
-      mv(T(1),A(i,i),A.row(i,i),T(0), work);
-      rank1(tau(i),work,A.row(i,i),A(i,i+1));
+      mv(T(1), A.block(i,i+1).view(Trans::view), A.col(i,i), T(0), work.block(i+1));
+      rank1(-tau(i), A.col(i,i), work.block(i+1), A.block(i,i+1));
 
       A(i,i) = AII;
     }
+    fmt::printf("i=%d\n", i);
+    print(A);
   }
 }
 
