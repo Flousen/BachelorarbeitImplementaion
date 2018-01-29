@@ -1,0 +1,76 @@
+\chapter{QR factorisation}
+
+\section{LAPACK}
+Mathe
+\begin{align}
+	H &= I - \tau \omega \omega^T \\
+	\tau &= \frac{\alpha - \beta}{\beta} \\
+	\alpha &= A(i,i)\\
+	\beta &= \text{sign}(\alpha) \left|\sqrt{\alpha^2 + \|x\|^2}\right|\\
+	x &= A(i+1:m,i)\\
+	\omega &= A(i+1:m,i) * \frac{1}{\alpha - \beta}
+\end{align}
+Algorithmus
+\begin{lstlisting}
+householderVektor(Vektor v, alpha, tau)
+  beta = sign(sqrt(alpha ^2 + norm(x)^2),alpha)
+  tau = (alpha - beta) / beta	
+  scal(1/(alpha - beta), v)
+\end{lstlisting}
+\begin{lstlisting}
+tau=zeros(min(m,n))
+for i = 0 : min(m,n)
+  householderVektor(A(i+1:m,i), A(i,i), tau(i)) 
+  if (i < n && tau != 0)
+    AII = A(i,i)
+    A(i,i)= 1
+    A = A - tau *w(w'*A) // MV und rank1
+    A(i,i) = AII
+\end{lstlisting}
+
+\section{NUM3 Urban}
+Mathe
+\begin{align}
+	H &= I - 2 \frac{\omega \omega^T}{\omega^T \omega}\\
+	\omega_1 &= \frac{x - \alpha e_1}{x_1 - \alpha}\\
+	\alpha ^2 &= \|x\|^2 
+\end{align}
+Algorithmus
+\begin{lstlisting}
+householderVektor(Vektor x, omega, beta)
+  n = length(x)
+  if n> 1
+    sigma = x(2:end)'*x(2:end);
+    if sigma==0
+      beta = 0;
+    else
+      mu = sqrt(x(1)^2+sigma);
+      if x(1)<=0
+        tmp = x(1) - mu;
+      else
+        tmp = -sigma / (x(1) + mu);
+      end
+      beta = 2*tmp^2/(sigma + tmp^2);
+      x(2:end) = x(2:end)/tmp;
+    end
+    v = [1;x(2:end)];
+  else
+    beta = 0;
+    v = 1;
+  end
+\end{lstlisting}
+
+\begin{lstlisting}
+for i = i:n
+  housevector(A(i:m, i), w, beta)
+  A(i:m,i:n) = (I(m-i+1) - beta * w * w')*A(i m,i:n)
+  if i < m
+    A(i + 1 : m, i) = w(2:m-i+1)
+\end{lstlisting}
+
+
+
+\section{Fragen}
+\begin{enumerate}
+	\item Was mach ich bei LAPACK mit dem $ \tau $ ?
+\end{enumerate}

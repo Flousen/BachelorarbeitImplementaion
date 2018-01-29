@@ -24,6 +24,6 @@ main()
   GeMatrix<double> A(MAX_M, MAX_N);
 
   test::rand(A);
-  qr_unblk(A)
+  qr_unblk(A);
 
 }

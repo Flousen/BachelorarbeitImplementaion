@@ -5,6 +5,8 @@
 #include <cstddef>
 #include <type_traits>
 
+#include <hpc/ulmblas/dot.hpp>
+
 #include <hpc/matvec/iamax.hpp>
 #include <hpc/matvec/rank1.hpp>
 #include <hpc/matvec/scal.hpp>
@@ -23,19 +25,21 @@ void
 householderVector(VectorV &&v, A *alpha, T *tau)
 {
 
-  if (v.lenth() == 1)
+  if (v.length() == 1)
     tau = T(0);
 
   //T xnorm = norm();
-  auto dot = hpc::dot();
+  auto dot = hpc::ulmblas::dot( v.length(),
+              false, v.data(), v.inc(),
+              false, v.data(), v.inc() );
 
   if (dot == VectorV(0)){
     tau = T(0);
   } else {
     auto beta = -std::copysign(sqrt(alpha*alpha + dot),alpha);
     tau = (beta - alpha) / beta;
-    scal();
-    alpha = beata;
+    scal(1/(alpha - beta),v);
+    alpha = beta;
   }
   
 }
@@ -51,14 +55,17 @@ qr_unblk(MatrixA &&A)
   std::size_t n  = A.numCols();
   std::size_t mn = std::min(m,n);
 
+  DenseVector<T> tau(mn);
+
   for (std::size_t i = 0; i < mn; ++i){
-    householderVector();
+    //householderVector(view_select(A.row(i,m-i)),A(i,i),tau(i));
     if (i < n && tau(i) != 0) {
-      AII = A(ii);
+      AII = A(i,i);
       A(i,i) = T(1);
       
-      mv();
-      rank1();
+      DenseVector<T> work(mn-i);
+      mv(T(1),A(i,i),A.row(i,i),T(0), work);
+      rank1(tau(i),work,A.row(i,i),A(i,i+1));
 
       A(i,i) = AII;
     }
