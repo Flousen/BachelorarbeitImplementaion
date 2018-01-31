@@ -13,8 +13,8 @@
 #define MIN_N 10
 #define INC_M 10
 #define INC_N 10
-#define MAX_M 2000
-#define MAX_N 2000
+#define MAX_M 5
+#define MAX_N 5 
 
 int
 main()
@@ -22,8 +22,12 @@ main()
   using namespace hpc::matvec;
 
   GeMatrix<double> A(MAX_M, MAX_N);
+  DenseVector<double> tau(std::min(A.numRows(),A.numCols()));
 
   test::rand(A);
-  qr_unblk(A);
+  print(A, "%9.4f");
+  qr_unblk(A,tau);
+  print(A, "%9.4f");
+  print(tau);
 
 }
