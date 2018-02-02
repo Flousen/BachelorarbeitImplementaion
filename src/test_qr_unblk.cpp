@@ -30,4 +30,6 @@ main()
   print(A, "%9.4f");
   print(tau);
 
+  print(A+A);
+
 }
