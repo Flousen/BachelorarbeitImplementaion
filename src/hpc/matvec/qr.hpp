@@ -15,6 +15,7 @@
 #include <hpc/matvec/swap.hpp>
 
 #include <hpc/matvec/densevector.hpp>
+#include <hpc/matvec/gematrix.hpp>
 #include <hpc/matvec/traits.hpp>
 #include <hpc/ulmblas/axpy.hpp>
 
@@ -70,41 +71,53 @@ void qr_unblk(MatrixA &&A, VectorTau &&tau)
   }
 }
 
-template <typename MatrixV, typename VectorTau, typename MatrixT,
-          Require< Ge<MatrixV>, Dense<VectorTau>, Ge<MatrixT> > = true>
+
+// H  =  I - V * T * V'
+template <typename MatrixV, typename VectorTau, typename MatrixT>
 void
-LARFT(MatrixV &&V, VectorTau &&tau, MatrixT &&T)
+larft(MatrixV &&V, VectorTau &&tau, MatrixT &&T)
 {
-  std::size_t n  = A.numCols();
-  std::size_t k  = A.numRows();
-  assert();
+
+  using TMV = ElementType<MatrixV>;
+  std::size_t k  = tau.length();
+  std::size_t n  = V.numCols();
+  if (n == 0)
+    return;
+
   for (std::size_t i = 0; i< k; i++){
+    fmt::printf("i = %d \n", i);
     if (tau(i) == 0){
-      scal(0,T.row(1,i).dim(i,i));
+      scal(TMV(0), T.row(1,i).dim(i));
     } else {
       auto VII = V(i,i);
-      V(i,i) = 0;
+      V(i,i) = TMV(0);
+
       // T(1:i-1,i) := - tau(i) * V(i:n,1:i-1)' * V(i:n,i)
-      mv(-tau(i), V.block(i,1).dim(i,n-i).view(Trans::view), V.row(i,i), 0, T.col(1,i).dim(i));
+      mv(-tau(i), V.block(i,0).dim(n-i,i).view(Trans::view),
+          V.row(i,i), TMV(0),
+          T.col(0,i).dim(i));
       V(i,i) = VII;
-      // T(1:i-1,i) := T(1:i-1,1:i-1) * T(1:i-1,i)
-      trmv(T.block(1,1).dim(i,i),T.col(1,i).dim(i));
+    //T(1:i-1,i) := T(1:i-1,1:i-1) * T(1:i-1,i)
+      mv(TMV(1), T.block(0,0).dim(i,i),
+          T.col(0,i).dim(i), TMV(0),
+          T.col(0,i).dim(i));
       T(i,i) = tau(i);
     }
   }
 }
 
-template <typename MatrixV, typename MatrixT, typename MatrixC,
-          Require< Ge<MatrixV>, Ge<MatrixT>, Ge<MatrixC> > = true>
+template <typename MatrixV, typename MatrixT, typename MatrixC>
 void
-LARFB(MatrixV &&V, MatrixT &&T, MatrixC &&C)
+larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C)
 {
   std::size_t m  = C.numRows();
   std::size_t n  = C.numCols();
   std::size_t k  = A.numRows();
   GeMatirx<T> W(m,n);
 
-  copy(C,W);
+  for(std::size_t j = 0; j<k; ++i)
+    copy(C,W);
+
   trmm(1,V,W);
   if (m>k){
     mm(1,C,V,W);
@@ -114,7 +127,7 @@ LARFB(MatrixV &&V, MatrixT &&T, MatrixC &&C)
     mm(-1,V,W,C);
   }
   trmm(1,V,W);
-  C += -W;
+  applay(C += -W);
 }
 
 template <typename MatrixA, typename VectorTau,
@@ -122,7 +135,6 @@ template <typename MatrixA, typename VectorTau,
 void
 qr_blk(MatrixA &&A, VectorTau &&tau)
 {
-
   using T = ElementType<MatrixA>;
 
   std::size_t m  = A.numRows();
@@ -130,23 +142,27 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
   std::size_t mn = std::min(m,n);
 
   assert(tau.length() == mn);
-  std::size_t nb; 
-  std::size_t ib;
-  GeMatirx<T> H(m,n);
+  std::size_t nb = 5 ; 
+  std::size_t nx = 5 ;
+  std::size_t nbmin = 2 ;
+
+  std::size_t ib = 5 ;
+  GeMatrix<T> H(std::max(m,n), std::max(m,n));
+  std::size_t i = 1;
   if(nb >= nbmin && nb < mn && nx < mn){
-    for (std::size_t i = 0; i < mn-nx; i+=nb){
+    for (i = 0; i < mn-nx; i+=nb){
       //ib = std::min(mn-i+1, nb)
-      qr_unblk(A.block(i,i).block(m-i+1,ib), tau.block(i).dim(m-i));
+      qr_unblk(A.block(i,i).dim(m-i,ib), tau.block(i).dim(ib));
       if ( i + ib <= n){
         // Form the triangular factor of the block reflector
         // H = H(i) H(i+1) . . . H(i+ib-1)
-        LARFT(A.block(i,i).dim(ib), tau.block(i).dim(ib), H);
+        larft(A.block(i,i).dim(m-1,ib), tau.block(i).dim(ib),
+               H.block(0,0).dim(m,ib));
+        print(H);
         // Apply H' to A(i:m,i+ib:n) from the left
-        LARFB(A.block(i,i).dim(ib), H, A.block(i,i + ib).dim(n-i-ib));
+        larfb(A.block(i,i).dim(ib), H, A.block(i,i + ib).dim(n-i-ib));
       }
     }
-  } else {
-    std::size_t i = 0;
   }
   if ( i <= mn)
     qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(m-i));
