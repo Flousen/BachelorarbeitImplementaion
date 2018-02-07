@@ -13,6 +13,7 @@
 #include <hpc/matvec/sv.hpp>
 #include <hpc/matvec/sm.hpp>
 #include <hpc/matvec/swap.hpp>
+#include <hpc/matvec/copy.hpp>
 
 #include <hpc/matvec/densevector.hpp>
 #include <hpc/matvec/gematrix.hpp>
@@ -85,7 +86,6 @@ larft(MatrixV &&V, VectorTau &&tau, MatrixT &&T)
     return;
 
   for (std::size_t i = 0; i< k; i++){
-    fmt::printf("i = %d \n", i);
     if (tau(i) == 0){
       scal(TMV(0), T.row(1,i).dim(i));
     } else {
@@ -112,22 +112,31 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C)
 {
   std::size_t m  = C.numRows();
   std::size_t n  = C.numCols();
-  std::size_t k  = A.numRows();
-  GeMatirx<T> W(m,n);
+  std::size_t k  = V.numCols();
 
-  for(std::size_t j = 0; j<k; ++i)
-    copy(C,W);
+  fmt::printf("m  = %lf \n",m);
+  fmt::printf("n  = %lf \n",n);
+  fmt::printf("k  = %lf \n",k);
 
-  trmm(1,V,W);
-  if (m>k){
-    mm(1,C,V,W);
-  }
-  trmm(1,T,W);
-  if (m>k){
-    mm(-1,V,W,C);
-  }
-  trmm(1,V,W);
-  applay(C += -W);
+  using TMV = ElementType<MatrixV>;
+  GeMatrix<TMV> W(T.numRows(),k);
+  fmt::printf("V rows = %lf V cols = %lf\n",V.numRows(),V.numCols());
+  fmt::printf("T rows = %lf T cols = %lf\n",T.numRows(),T.numCols());
+  fmt::printf("C rows = %lf C cols = %lf\n",C.numRows(),C.numCols());
+  fmt::printf("W rows = %lf W cols = %lf\n",W.numRows(),W.numCols());
+  
+  // W <- 1*C1'V1 + 0*W
+  
+  // W <- 1*C2'*V2 + 1*W
+
+  // W <- W*T
+  
+  // C <- -1*V*W' + 1*C
+
+  // C2 <- -1*V2*W' + 1*C
+  
+  // C1 <- -1*V1*W' + 1*C1
+
 }
 
 template <typename MatrixA, typename VectorTau,
@@ -147,7 +156,7 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
   std::size_t nbmin = 2 ;
 
   std::size_t ib = 5 ;
-  GeMatrix<T> H(std::max(m,n), std::max(m,n));
+  GeMatrix<T> H(n, n);
   std::size_t i = 1;
   if(nb >= nbmin && nb < mn && nx < mn){
     for (i = 0; i < mn-nx; i+=nb){
@@ -157,10 +166,13 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
         // Form the triangular factor of the block reflector
         // H = H(i) H(i+1) . . . H(i+ib-1)
         larft(A.block(i,i).dim(m-1,ib), tau.block(i).dim(ib),
-               H.block(0,0).dim(m,ib));
+               H.block(0,0).dim(n,ib));
+        fmt::printf("H =\n");
         print(H);
         // Apply H' to A(i:m,i+ib:n) from the left
-        larfb(A.block(i,i).dim(ib), H, A.block(i,i + ib).dim(n-i-ib));
+        larfb(A.block(i,i).dim(m,ib),
+              H.block(0,0).dim(n,ib),
+              A.block(i,i + ib).dim(m-i, n-i-ib));
       }
     }
   }
