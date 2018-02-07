@@ -118,7 +118,7 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C)
   fmt::printf("n  = %lf \n",n);
   fmt::printf("k  = %lf \n",k);
 
-  using TMV = ElementType<MatrixV>;
+  using TMV = ElementType<MatrixC>;
   GeMatrix<TMV> W(T.numRows(),k);
   fmt::printf("V rows = %lf V cols = %lf\n",V.numRows(),V.numCols());
   fmt::printf("T rows = %lf T cols = %lf\n",T.numRows(),T.numCols());
@@ -127,14 +127,18 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C)
   
   // W <- 1*C1'V1 + 0*W
   
+  mm(TMV(1), 
+      C.dim(k,n).view(Trans::view).view(UpLo::LowerUnit),
+      V.dim(n,k),
+      TMV(0),
+      W.dim(k,k));
+
+  // oder so 
+  // W <- 1*C1'V1 + 0*W
   // W <- 1*C2'*V2 + 1*W
-
   // W <- W*T
-  
   // C <- -1*V*W' + 1*C
-
   // C2 <- -1*V2*W' + 1*C
-  
   // C1 <- -1*V1*W' + 1*C1
 
 }

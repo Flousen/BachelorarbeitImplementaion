@@ -2,6 +2,7 @@
 #include <functional>
 #include <random>
 
+#include <printf.hpp>
 
 #include <hpc/matvec.hpp>
 #include <hpc/matvec/trmatrix.hpp>
@@ -16,7 +17,7 @@
 #define INC_M 10
 #define INC_N 10
 #define MAX_M 5 
-#define MAX_N 5
+#define MAX_N 5 
 
 int
 main()
@@ -40,14 +41,9 @@ main()
   fmt::printf("B =\n");
   print(B);
 
-  mm(1,A,B,0,B);
-  fmt::printf("B =\n");
-  print(B);
-  //fmt::printf("trilower = \n");
-  //print(A.block(1,1).view(UpLo::Lower) );
   
-  //qr_blk(A,tau);
-  //fmt::printf("qr_blk(A) = \n");
-  //print(A, "%9.4f");
+  qr_blk(A,tau);
+  fmt::printf("qr_blk(A) = \n");
+  print(A, "%9.4f");
 
 }
