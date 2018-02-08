@@ -16,8 +16,8 @@
 #define MIN_N 10
 #define INC_M 10
 #define INC_N 10
-#define MAX_M 5 
-#define MAX_N 5 
+#define MAX_M 10
+#define MAX_N 10 
 
 int
 main()
@@ -38,8 +38,6 @@ main()
   test::rand(B);
   fmt::printf("A =\n");
   print(A);
-  fmt::printf("B =\n");
-  print(B);
 
   
   qr_blk(A,tau);

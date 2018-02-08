@@ -86,11 +86,10 @@ mm(const Alpha &alpha, const MatrixA<T> &A, const MatrixB<T> &B,
     assert(C.numRows()==A.numRows());
     assert(C.numCols()==B.numCols());
 
-
     GeMatrix<T> Bt(B.numRows(),B.numCols());
     copy(B,Bt);
 
-    ulmblas::gemm(C.numRows(), C.numCols(), At.numCols(),
+    ulmblas::gemm(C.numRows(), C.numCols(), A.numCols(),
                   alpha,
                   A.conj(), A.data(), A.incRow(), A.incCol(),
                   Bt.conj(), Bt.data(), Bt.incRow(), Bt.incCol(),
