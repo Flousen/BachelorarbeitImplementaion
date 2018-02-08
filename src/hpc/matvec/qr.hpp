@@ -121,73 +121,49 @@ larft(MatrixV &&V, VectorTau &&tau, MatrixT &&T)
   }
 }
 
-//template <typename MatrixV, typename MatrixT, typename MatrixC>
-//void
-//larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C)
-//{
-//  std::size_t m  = C.numRows();
-//  std::size_t n  = C.numCols();
-//  std::size_t k  = V.numCols();
-//
-//  fmt::printf("m  = %lf \n",m);
-//  fmt::printf("n  = %lf \n",n);
-//  fmt::printf("k  = %lf \n",k);
-//
-//  using TMV = ElementType<MatrixC>;
-//  GeMatrix<TMV> W(T.numRows(),k);
-//  fmt::printf("V rows = %lf V cols = %lf\n",V.numRows(),V.numCols());
-//  fmt::printf("T rows = %lf T cols = %lf\n",T.numRows(),T.numCols());
-//  fmt::printf("C rows = %lf C cols = %lf\n",C.numRows(),C.numCols());
-//  fmt::printf("W rows = %lf W cols = %lf\n",W.numRows(),W.numCols());
-//  
-//  // W <- 1*C1'V1 + 0*W
-//  mm(TMV(1), 
-//      C.dim(k,n).view(Trans::view).view(UpLo::LowerUnit),
-//      V.dim(n,k),
-//      TMV(0),
-//      W.dim(k,k));
-//  
-//  if ( m > k ){
-//    fmt::printf("Hallo\n");
-//    //   W <- C2'*V2 + W
-//    mm(TMV(1),
-//       C.block(k,0).dim(n,k).view(Trans::view),
-//       V.block(k,0).dim(n,k),
-//       TMV(1),
-//       W.dim(k,k));
-//  }
-//
-//  // W := W * T
-//  mm(TMV(1),
-//     W.dim(k,k),
-//     T.dim(k,k).view(UpLo::Upper),
-//     TMV(0),
-//     W.dim(k,k));
-//  
-//  if ( m > k ){
-//    // C2 <- -1*V2*W' + C2
-//    mm(TMV(-1),
-//        V,
-//        W.view(Trans::view),
-//        TMV(1),
-//        C);
-//  }
-//
-//  // C1 <- -1*V1*W' + 1*C1
-//  //mm(TMV(-1),
-//  //   V.view(UpLo::UpperUnit),
-//  //   W,
-//  //   TMV(1),
-//  //   C);
-//
-//}
+template <typename MatrixV, typename MatrixT, typename MatrixC>
+void
+larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C)
+{
+  std::size_t m  = C.numRows();
+  std::size_t n  = C.numCols();
+  std::size_t k  = V.numCols();
+
+
+  using TMV = ElementType<MatrixC>;
+  GeMatrix<TMV> W(T.numRows(),k);
+  
+  // W <- C'*V + 0*W
+  mm(TMV(1),
+     C.view(Trans::view),
+     V.view(UpLo::Lower),
+     TMV(0),
+     W);
+  print(W);
+  // W <- W*T + 0*W
+  mm(TMV(1),
+     W,
+     T,
+     TMV(0),
+     W);
+  
+  // C <- -1*V*W' + C
+  mm(TMV(-1),
+     V.view(UpLo::Lower),
+     W.view(Trans::view),
+     TMV(1),
+     C);
+
+
+
+}
 
 template <typename MatrixA, typename VectorTau,
           Require< Ge<MatrixA>, Dense<VectorTau> > = true>
 void
 qr_blk(MatrixA &&A, VectorTau &&tau)
 {
-  using T = ElementType<MatrixA>;
+  using TMA = ElementType<MatrixA>;
 
   std::size_t m  = A.numRows();
   std::size_t n  = A.numCols();
@@ -199,7 +175,7 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
   std::size_t nbmin = 2 ;
 
   std::size_t ib = 5 ;
-  GeMatrix<T> H(n, n);
+  GeMatrix<TMA> T(n, n);
   std::size_t i = 1;
   if(nb >= nbmin && nb < mn && nx < mn){
     for (i = 0; i < mn-nx; i+=nb){
@@ -211,10 +187,10 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
 
         larft(A.block(i,i).dim(m-i,ib),
                tau.block(i).dim(ib),
-               H.block(0,0).dim(ib,ib));
+               T.block(0,0).dim(ib,ib));
         // Apply H' to A(i:m,i+ib:n) from the left
-        larfb(A.block(i,i).dim(m,ib),
-              H.block(0,0).dim(n,ib),
+        larfb(A.block(i,i).dim(m-i,ib),
+              T.block(0,0).dim(ib,ib),
               A.block(i,i + ib).dim(m-i, n-i-ib));
       }
     }

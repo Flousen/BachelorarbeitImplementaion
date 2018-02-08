@@ -28,20 +28,23 @@ main()
   GeMatrix<double> B(MAX_M, MAX_N);
   DenseVector<double> tau(std::min(A.numRows(),A.numCols()));
 
-  //test::rand(A);
-  //print(A, "%9.4f");
-  //qr_unblk(A,tau);
-  //print(A, "%9.4f");
-  //print(tau);
-
   test::rand(A);
-  test::rand(B);
+  fmt::printf("A = \n");
+  print(A, "%9.4f");
+
+  qr_unblk(A,tau);
+  fmt::printf("qr(A) = \n");
+  print(A, "%9.4f");
+
+  larft(A,tau,B);
+  larfb(A,B,A);
+
   fmt::printf("A =\n");
-  print(A);
+  print(A, "%9.4f");
 
   
-  qr_blk(A,tau);
-  fmt::printf("qr_blk(A) = \n");
-  print(A, "%9.4f");
+  //qr_blk(A,tau);
+  //fmt::printf("qr_blk(A) = \n");
+  //print(A, "%9.4f");
 
 }
