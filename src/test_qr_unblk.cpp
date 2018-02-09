@@ -11,6 +11,7 @@
 #include <hpc/matvec/test/walltime.hpp>
 #include <hpc/matvec/qr.hpp>
 #include <hpc/matvec/mm.hpp>
+#include <hpc/matvec/print.hpp>
 
 #define MIN_M 10
 #define MIN_N 10
