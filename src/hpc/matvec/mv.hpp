@@ -72,11 +72,8 @@ void
 mv(const Alpha &alpha, const MatrixA<T> &A, const VectorX<T> &x,
    const Beta &beta, VectorY &&y)
 {
-    if(A.numRows() == 0 || A.numCols() == 0 || x.length() == 0)
-      return;
     assert(A.numRows()==y.length());
     assert(A.numCols()==x.length());
-    assert(beta == T(0));
     
     GeMatrix<T> At(A.numRows(),A.numCols());
     DenseVector<T> erg(y.length());

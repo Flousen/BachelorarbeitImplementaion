@@ -17,7 +17,7 @@ template <template<typename> class VectorX, typename T,
 void
 print(const VectorX<T> &x, const char *format)
 {
-    ulmblas::print(x.length(), x.data(), x.inc(), format);
+    ulmblas::print(x.length(), x.conj(), x.data(), x.inc(), format);
 }
 
 template <template<typename> class VectorX, typename T,

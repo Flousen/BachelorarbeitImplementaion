@@ -31,17 +31,17 @@ main()
 
   test::rand(A);
   fmt::printf("A = \n");
-  print(A, "%9.4f");
+  print(A.col(0,0), "%9.4f");
 
-  qr_unblk(A,tau);
-  fmt::printf("qr(A) = \n");
-  print(A, "%9.4f");
+  //qr_unblk(A,tau);
+  //fmt::printf("qr(A) = \n");
+  //print(A, "%9.4f");
 
-  larft(A,tau,B);
-  larfb(A,B,A);
+  //larft(A,tau,B);
+  //larfb(A,B,A);
 
-  fmt::printf("A =\n");
-  print(A, "%9.4f");
+  //fmt::printf("A =\n");
+  //print(A, "%9.4f");
 
   
   //qr_blk(A,tau);

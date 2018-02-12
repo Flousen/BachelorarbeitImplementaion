@@ -44,59 +44,43 @@ mm(const Alpha &alpha, const MatrixA<T> &A, const MatrixB<T> &B,
 
 template <typename Alpha, typename Beta,
           typename T, template<typename> class MatrixA,
-                      template<typename> class MatrixB,
-                      typename MatrixC,
+                      typename MatrixB,
           Require< Tr<MatrixA<T>>,
-                   Ge<MatrixB<T>>,
-                   Ge<MatrixC>
+                   Ge<MatrixB>
                  > = true>
 void
-mm(const Alpha &alpha, const MatrixA<T> &A, const MatrixB<T> &B,
-   const Beta &beta, MatrixC &&C)
+mm(const Alpha &alpha, const MatrixA<T> &A, MatrixB &&B)
 {
+    assert(A.numCols()==A.numRows());
     assert(A.numCols()==B.numRows());
-    assert(C.numRows()==A.numRows());
-    assert(C.numCols()==B.numCols());
 
+    GeMatrix<T> TrTmp(A.numRows(),A.numCols());
+    copy(A,TrTmp);
 
-    GeMatrix<T> At(A.numRows(),A.numCols());
-    copy(A,At);
+    GeMatrix<T> BTmp(B.numRows(),B.numCols());
+    copy(B,BTmp);
 
-    ulmblas::gemm(C.numRows(), C.numCols(), At.numCols(),
+    ulmblas::gemm(B.numRows(), B.numCols(), A.numCols(),
                   alpha,
-                  At.conj(), At.data(), At.incRow(), At.incCol(),
+                  TrTmp.conj(), TrTmp.data(), TrTmp.incRow(), TrTmp.incCol(),
                   B.conj(), B.data(), B.incRow(), B.incCol(),
-                  beta,
-                  C.data(), C.incRow(), C.incCol());
+                  T(0),
+                  BTmp.data(), BTmp.incRow(), BTmp.incCol());
+
+    copy(BTmp, B);
 }
 
 template <typename Alpha, typename Beta,
           typename T, template<typename> class MatrixA,
-                      template<typename> class MatrixB,
-                      typename MatrixC,
-          Require< Ge<MatrixA<T>>,
-                   Tr<MatrixB<T>>,
-                   Ge<MatrixC>
+                      typename MatrixB,
+          Require< Tr<MatrixA<T>>,
+                   Ge<MatrixB>
                  > = true>
 void
-mm(const Alpha &alpha, const MatrixA<T> &A, const MatrixB<T> &B,
-   const Beta &beta, MatrixC &&C)
+mm(const Alpha &alpha, MatrixB &&B, const MatrixA<T> &A)
 {
-    assert(A.numCols()==B.numRows());
-    assert(C.numRows()==A.numRows());
-    assert(C.numCols()==B.numCols());
-
-    GeMatrix<T> Bt(B.numRows(),B.numCols());
-    copy(B,Bt);
-
-    ulmblas::gemm(C.numRows(), C.numCols(), A.numCols(),
-                  alpha,
-                  A.conj(), A.data(), A.incRow(), A.incCol(),
-                  Bt.conj(), Bt.data(), Bt.incRow(), Bt.incCol(),
-                  beta,
-                  C.data(), C.incRow(), C.incCol());
+    mm(alpha, A.view(Trans::view), B.view(Trans::view));
 }
-
 
 } } // namespace matvec, hpc
 
