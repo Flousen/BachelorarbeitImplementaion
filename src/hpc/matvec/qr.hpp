@@ -86,16 +86,16 @@ template <typename MatrixV, typename VectorTau, typename MatrixT>
 void
 larft(MatrixV &&V, VectorTau &&tau, MatrixT &&T)
 {
-
   using TMV = ElementType<MatrixV>;
+
   std::size_t k  = tau.length();
   std::size_t n  = V.numRows();
-  if (n == 0)
-    return;
+
+  if (n == 0){ return; }
 
   for (std::size_t i = 0; i< k; i++){
     if (tau(i) == 0){
-      scal(TMV(0), T.row(1,i).dim(i));
+      scal(TMV(0), T.col(0,i).dim(i));
     } else {
       auto VII = V(i,i);
       V(i,i) = TMV(1);
@@ -218,6 +218,24 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
   if ( i <= mn)
     qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(m-i));
 }
+
+template <typename MatrixA, typename VectorTau, typename MatrixQ,
+          Require< Ge<MatrixA>, Dense<VectorTau> > = true>
+void makeQ(MatrixA &&A, VectorTau &&tau, MatrixQ &&Q){
+  assert(A.numRows() == Q.numRows());
+  assert(A.numCols() == Q.numCols());
+  
+  std::size_t n  = A.numCols();
+  copy(A.view(UpLo::Upper), Q);
+  
+  using TM = ElementType<MatrixA>;
+  GeMatrix<TM> T(n, n);
+
+  larft(A, tau, T);
+  larfb(A, T.view(Trans::view), Q);
+  
+}
+
 
 } } // namespace matvec, hpc
 
