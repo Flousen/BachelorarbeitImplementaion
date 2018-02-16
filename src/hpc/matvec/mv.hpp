@@ -59,27 +59,23 @@ mv(const Alpha &alpha, const MatrixA<T> &A, const VectorX<T> &x,
     }
 }
 
-template <typename Alpha, typename Beta,
+template <typename Alpha,
           typename T, template<typename> class MatrixA,
                       template<typename> class VectorX,
-                      typename                 VectorY,
           Require< Tr<MatrixA<T>>,
-                   Dense<VectorX<T>>,
-                   Dense<VectorY>,
-                   SameElementType<VectorX<T>, VectorY>
+                   Dense<VectorX<T>>
                  > = true>
 void
-mv(const Alpha &alpha, const MatrixA<T> &A, const VectorX<T> &x,
-   const Beta &beta, VectorY &&y)
+mv(const Alpha &alpha, const MatrixA<T> &A, const VectorX<T> &x)
 {
-    assert(A.numRows()==y.length());
     assert(A.numCols()==x.length());
     
     GeMatrix<T> At(A.numRows(),A.numCols());
-    DenseVector<T> erg(y.length());
+    DenseVector<T> erg(x.length());
+
     copy(A,At);
-    mv(alpha,At,x,beta,erg);
-    copy(erg,y);
+    mv(alpha,At,x,T(0),erg);
+    copy(erg,x);
 }
 
 } } // namespace matvec, hpc

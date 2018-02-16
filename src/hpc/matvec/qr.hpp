@@ -112,9 +112,7 @@ larft(MatrixV &&V, VectorTau &&tau, MatrixT &&T)
       // T(1:i-1,i) := T(1:i-1,1:i-1) * T(1:i-1,i)
       mv(TMV(1),
           T.block(0,0).dim(i,i).view(UpLo::Upper),
-          T.col(0,i).dim(i),
-          TMV(0),
-          T.col(0,i).dim(i));
+          T.col(0,i).dim(i) );
      
       T(i,i) = tau(i);
     }
@@ -133,28 +131,52 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C)
   using TMV = ElementType<MatrixC>;
   GeMatrix<TMV> W(T.numRows(),k);
   
-  // W <- C'*V + 0*W
-  mm(TMV(1),
-     C.view(Trans::view),
-     V.view(UpLo::Lower),
-     TMV(0),
-     W);
+  //auto C1 = C.dim(n,n);
+  //auto V1 = V.dim(n,n).view(UpLo::LowerUnit);
+  //
+  ////if(m > k){
+  //  auto C2 = C.block(n,0).dim(m-n,n).view();
+  //  auto V2 = V.block(n,0).dim(m-n,n).view();
+  ////} 
+
+// W := C' * V  =  (C1'*V1 + C2'*V2)
+  // W := C1'
+  print(C);
+  copy(C.dim(n,n).view(Trans::view), W);
   print(W);
-  // W <- W*T + 0*W
+  // W := W * V1
+  mm(TMV(1),
+      W,
+      V.dim(n,n).view(UpLo::LowerUnit));
+  if(m > k){
+    // W := W + C2'*V2
+    mm(TMV(1),
+        C.block(n,0).dim(m-n,n).view(Trans::view),
+        V.block(n,0).dim(m-n,n),
+        TMV(1),
+        W);
+  }
+  // W :=  W * T
+  mm(TMV(1), W, T.view(UpLo::Upper));
+// C := C - V * W'
+  if(m > k){
+    // C2 := C2 - V2 * W'
+    mm(TMV(-1),
+       V.block(n,0).dim(m-n,n),
+       W.view(Trans::view),
+       TMV(1),
+       C.block(n,0).dim(m-n,n));
+  }
+  // W := W * V1'
   mm(TMV(1),
      W,
-     T,
-     TMV(0),
-     W);
-  
-  // C <- -1*V*W' + C
-  mm(TMV(-1),
-     V.view(UpLo::Lower),
-     W.view(Trans::view),
-     TMV(1),
-     C);
-
-
+     V.dim(n,n).view(Trans::view).view(UpLo::UpperUnit));
+  // C1 := C1 - W'
+  for(std::size_t j = 0; j < k; j++){
+    for(std::size_t i = 0; i < n; i++){
+      C(j,i) -= W(i,j);
+    } 
+  }
 
 }
 

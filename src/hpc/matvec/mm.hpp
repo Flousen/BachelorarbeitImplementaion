@@ -22,8 +22,8 @@ template <typename Alpha, typename Beta,
           typename T, template<typename> class MatrixA,
                       template<typename> class MatrixB,
                       typename MatrixC,
-          Require< Ge<MatrixA<T>>,
-                   Ge<MatrixB<T>>,
+          Require< Ge<MatrixA<T> >,
+                   Ge<MatrixB<T> >,
                    Ge<MatrixC>
                  > = true>
 void
@@ -42,7 +42,7 @@ mm(const Alpha &alpha, const MatrixA<T> &A, const MatrixB<T> &B,
                   C.data(), C.incRow(), C.incCol());
 }
 
-template <typename Alpha, typename Beta,
+template <typename Alpha,
           typename T, template<typename> class MatrixA,
                       typename MatrixB,
           Require< Tr<MatrixA<T>>,
@@ -70,16 +70,32 @@ mm(const Alpha &alpha, const MatrixA<T> &A, MatrixB &&B)
     copy(BTmp, B);
 }
 
-template <typename Alpha, typename Beta,
-          typename T, template<typename> class MatrixA,
-                      typename MatrixB,
-          Require< Tr<MatrixA<T>>,
-                   Ge<MatrixB>
+template <typename Alpha,
+          typename T, typename MatrixA,
+                      template<typename> class MatrixB,
+          Require< Ge<MatrixA>,
+                   Tr<MatrixB<T>>
                  > = true>
 void
-mm(const Alpha &alpha, MatrixB &&B, const MatrixA<T> &A)
+mm(const Alpha &alpha, MatrixA &&A, const MatrixB<T> &B)
 {
-    mm(alpha, A.view(Trans::view), B.view(Trans::view));
+    assert(A.numCols()==A.numRows());
+    assert(A.numCols()==B.numRows());
+
+    GeMatrix<T> TrTmp(A.numRows(),A.numCols());
+    copy(B,TrTmp);
+
+    GeMatrix<T> ATmp(A.numRows(),A.numCols());
+
+    ulmblas::gemm(A.numRows(), A.numCols(), B.numCols(),
+                  alpha,
+                  A.conj(), A.data(), A.incRow(), A.incCol(),
+                  TrTmp.conj(), TrTmp.data(), TrTmp.incRow(), TrTmp.incCol(),
+                  T(0),
+                  ATmp.data(), ATmp.incRow(), ATmp.incCol());
+
+    copy(ATmp, A);
+    //mm(alpha, B.view(Trans::view), A.view(Trans::view));
 }
 
 } } // namespace matvec, hpc
