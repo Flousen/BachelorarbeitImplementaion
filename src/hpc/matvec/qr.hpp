@@ -141,9 +141,7 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C)
 
 // W := C' * V  =  (C1'*V1 + C2'*V2)
   // W := C1'
-  print(C);
   copy(C.dim(n,n).view(Trans::view), W);
-  print(W);
   // W := W * V1
   mm(TMV(1),
       W,
