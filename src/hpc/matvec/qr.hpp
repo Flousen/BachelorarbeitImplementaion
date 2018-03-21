@@ -215,8 +215,48 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
       }
     }
   }
-  if ( i <= mn)
+  if ( i <= mn){
     qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(m-i));
+  }
+}
+
+template <typename MatrixA, typename VectorTau,
+          Require< Ge<MatrixA>, Dense<VectorTau> > = true>
+void
+qr_blk2(MatrixA &&A, VectorTau &&tau)
+{
+  using TMA = ElementType<MatrixA>;
+
+  std::size_t m  = A.numRows();
+  std::size_t n  = A.numCols();
+  std::size_t mn = std::min(m,n);
+
+  assert(tau.length() == mn);
+  std::size_t nb = 5 ; 
+
+  GeMatrix<TMA> T(n, n);
+
+  if( nb < mn ){
+    //ib = std::min(mn-i+1, nb)
+    qr_unblk(A.dim(m,nb), tau.dim(nb));
+
+    // Form the triangular factor of the block reflector
+    
+    // H = H(i) H(i+1) . . . H(i+ib-1)
+    larft(A.dim(m,nb),
+           tau.dim(nb),
+           T.block(0,0).dim(nb,nb));
+    
+    // Apply H' to A(i:m,i+ib:n) from the left
+    larfb(A.dim(m,nb),
+          T.block(0,0).dim(nb,nb),
+          A.block(0,nb).dim(m, n-nb));
+
+    qr_blk2(A.block(nb,nb), tau.block(nb));
+  }
+  else if ( nb <= mn ){
+    qr_unblk(A, tau);
+  }
 }
 
 template <typename MatrixA, typename VectorTau, typename MatrixQ,
