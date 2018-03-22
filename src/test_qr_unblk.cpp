@@ -10,7 +10,6 @@
 #include <hpc/matvec/test/rand.hpp>
 #include <hpc/matvec/test/walltime.hpp>
 #include <hpc/matvec/qr.hpp>
-#include <hpc/matvec/norm.hpp>
 #include <hpc/matvec/mm.hpp>
 #include <hpc/matvec/print.hpp>
 

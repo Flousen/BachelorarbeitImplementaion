@@ -346,7 +346,9 @@ qr_error(MatrixA &&A, MatrixAqr &&Aqr, VectorTau &&tau){
 
   auto normAn = test::norminf(nA);
   auto normA  = test::norminf( A);
-  auto err = normAn / (normA * std::min(A.numRows(), A.numCols()));
+  auto err = normAn / (normA *
+      std::min(A.numRows(), A.numCols()) * 
+      10e-15);
 
   fmt::printf("err = %lf \n",err );
 
