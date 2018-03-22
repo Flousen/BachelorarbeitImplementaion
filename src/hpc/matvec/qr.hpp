@@ -14,6 +14,7 @@
 #include <hpc/matvec/sm.hpp>
 #include <hpc/matvec/swap.hpp>
 #include <hpc/matvec/copy.hpp>
+#include <hpc/matvec/test/norminf.hpp>
 
 #include <hpc/matvec/densevector.hpp>
 #include <hpc/matvec/gematrix.hpp>
@@ -121,11 +122,13 @@ larft(MatrixV &&V, VectorTau &&tau, MatrixT &&T)
 
 template <typename MatrixV, typename MatrixT, typename MatrixC>
 void
-larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C)
+larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
 {
   std::size_t m  = C.numRows();
   std::size_t n  = C.numCols();
   std::size_t k  = V.numCols();
+
+  trans = !trans;
 
 
   using TMV = ElementType<MatrixC>;
@@ -155,7 +158,7 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C)
         W);
   }
   // W :=  W * T
-  mm(TMV(1), W, T.view(UpLo::Upper));
+  mm(TMV(1), W, T.view(UpLo::Upper), trans);
 // C := C - V * W'
   if(m > k){
     // C2 := C2 - V2 * W'
@@ -211,11 +214,52 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
         // Apply H' to A(i:m,i+ib:n) from the left
         larfb(A.block(i,i).dim(m-i,ib),
               T.block(0,0).dim(ib,ib),
-              A.block(i,i + ib).dim(m-i, n-i-ib));
+              A.block(i,i + ib).dim(m-i, n-i-ib),
+              true);
       }
     }
   }
   if ( i <= mn){
+    qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(m-i));
+  }
+}
+
+template <typename MatrixA, typename VectorTau,
+          Require< Ge<MatrixA>, Dense<VectorTau> > = true>
+void
+qr_blke(MatrixA &&A, VectorTau &&tau)
+{
+  using TMA = ElementType<MatrixA>;
+
+  std::size_t m  = A.numRows();
+  std::size_t n  = A.numCols();
+  std::size_t mn = std::min(m,n);
+
+  assert(tau.length() == mn);
+  std::size_t nb = 5 ; 
+
+  GeMatrix<TMA> T(n, n);
+  std::size_t i = 1;
+  if( nb < mn ){
+    for (i = 0; i < mn; i+=nb){
+      //nb = std::min(mn-i+1, nb)
+      qr_unblk(A.block(i,i).dim(m-i,nb), tau.block(i).dim(nb));
+      if ( i + nb <= n){
+        // Form the triangular factor of the block reflector
+        // H = H(i) H(i+1) . . . H(i+nb-1)
+
+        larft(A.block(i,i).dim(m-i,nb),
+               tau.block(i).dim(nb),
+               T.block(0,0).dim(nb,nb));
+        // Apply H' to A(i:m,i+nb:n) from the left
+        larfb(A.block(i,i).dim(m-i,nb),
+              T.block(0,0).dim(nb,nb),
+              A.block(i,i + nb).dim(m-i, n-i-nb),
+              true);
+      }
+    }
+  }
+  if ( i <= mn ){
     qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(m-i));
   }
 }
@@ -237,20 +281,21 @@ qr_blk2(MatrixA &&A, VectorTau &&tau)
   GeMatrix<TMA> T(n, n);
 
   if( nb < mn ){
-    //ib = std::min(mn-i+1, nb)
+    //nb = std::min(mn-i+1, nb)
     qr_unblk(A.dim(m,nb), tau.dim(nb));
 
     // Form the triangular factor of the block reflector
     
-    // H = H(i) H(i+1) . . . H(i+ib-1)
+    // H = H(i) H(i+1) . . . H(i+nb-1)
     larft(A.dim(m,nb),
            tau.dim(nb),
            T.block(0,0).dim(nb,nb));
     
-    // Apply H' to A(i:m,i+ib:n) from the left
+    // Apply H' to A(i:m,i+nb:n) from the left
     larfb(A.dim(m,nb),
           T.block(0,0).dim(nb,nb),
-          A.block(0,nb).dim(m, n-nb));
+          A.block(0,nb).dim(m, n-nb),
+          true);
 
     qr_blk2(A.block(nb,nb), tau.block(nb));
   }
@@ -266,13 +311,46 @@ void makeQ(MatrixA &&A, VectorTau &&tau, MatrixQ &&Q){
   assert(A.numCols() == Q.numCols());
   
   std::size_t n  = A.numCols();
-  copy(A.view(UpLo::Upper), Q);
+  std::size_t m  = A.numRows();
+  for(std::size_t i = 0; i < n; ++i){
+    for(std::size_t j = 0; j < m; ++j){
+      Q(j,i) = (i==j) ? 1 : 0;
+    }
+  }
   
   using TM = ElementType<MatrixA>;
   GeMatrix<TM> T(n, n);
 
   larft(A, tau, T);
-  larfb(A, T.view(Trans::view), Q);
+  larfb(A, T, Q);
+  
+}
+
+template <typename MatrixA, typename MatrixAqr, typename VectorTau,
+          Require< Ge<MatrixA>, Ge<MatrixAqr>, Dense<VectorTau> > = true>
+void
+qr_error(MatrixA &&A, MatrixAqr &&Aqr, VectorTau &&tau){
+
+  GeMatrix<double> nA(A.numRows(), A.numCols());
+  copy(A, nA);
+
+
+  GeMatrix<double> Q(A.numRows(), A.numCols());
+  makeQ(Aqr, tau, Q);
+  
+  GeMatrix<double> R(A.numRows(), A.numCols());
+  copy(Aqr.view(UpLo::Upper),R);
+
+  mm(1.0, Q,R,
+     -1.0, nA);
+
+  auto normAn = test::norminf(nA);
+  auto normA  = test::norminf( A);
+  auto err = normAn / (normA * std::min(A.numRows(), A.numCols()));
+
+  fmt::printf("err = %lf \n",err );
+
+  
   
 }
 

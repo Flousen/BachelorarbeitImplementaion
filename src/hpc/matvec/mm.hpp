@@ -49,7 +49,7 @@ template <typename Alpha,
                    Ge<MatrixB>
                  > = true>
 void
-mm(const Alpha &alpha, const MatrixA<T> &A, MatrixB &&B)
+mm(const Alpha &alpha, const MatrixA<T> &A, MatrixB &&B, bool trans = false)
 {
     assert(A.numCols()==A.numRows());
     assert(A.numCols()==B.numRows());
@@ -60,13 +60,21 @@ mm(const Alpha &alpha, const MatrixA<T> &A, MatrixB &&B)
     GeMatrix<T> BTmp(B.numRows(),B.numCols());
     copy(B,BTmp);
 
-    ulmblas::gemm(B.numRows(), B.numCols(), A.numCols(),
-                  alpha,
-                  TrTmp.conj(), TrTmp.data(), TrTmp.incRow(), TrTmp.incCol(),
-                  B.conj(), B.data(), B.incRow(), B.incCol(),
-                  T(0),
-                  BTmp.data(), BTmp.incRow(), BTmp.incCol());
-
+    if ( trans ){
+      ulmblas::gemm(B.numRows(), B.numCols(), A.numCols(),
+                    alpha,
+                    TrTmp.conj(), TrTmp.data(), TrTmp.incCol(), TrTmp.incRow(),
+                    B.conj(), B.data(), B.incRow(), B.incCol(),
+                    T(0),
+                    BTmp.data(), BTmp.incRow(), BTmp.incCol());
+    } else{
+      ulmblas::gemm(B.numRows(), B.numCols(), A.numCols(),
+                    alpha,
+                    TrTmp.conj(), TrTmp.data(), TrTmp.incRow(), TrTmp.incCol(),
+                    B.conj(), B.data(), B.incRow(), B.incCol(),
+                    T(0),
+                    BTmp.data(), BTmp.incRow(), BTmp.incCol());
+    }
     copy(BTmp, B);
 }
 
@@ -77,7 +85,7 @@ template <typename Alpha,
                    Tr<MatrixB<T>>
                  > = true>
 void
-mm(const Alpha &alpha, MatrixA &&A, const MatrixB<T> &B)
+mm(const Alpha &alpha, MatrixA &&A, const MatrixB<T> &B, bool trans = false)
 {
     assert(A.numCols()==A.numRows());
     assert(A.numCols()==B.numRows());
@@ -86,13 +94,22 @@ mm(const Alpha &alpha, MatrixA &&A, const MatrixB<T> &B)
     copy(B,TrTmp);
 
     GeMatrix<T> ATmp(A.numRows(),A.numCols());
-
-    ulmblas::gemm(A.numRows(), A.numCols(), B.numCols(),
+    
+    if ( trans ){
+      ulmblas::gemm(A.numRows(), A.numCols(), B.numCols(),
+                  alpha,
+                  A.conj(), A.data(), A.incRow(), A.incCol(),
+                  TrTmp.conj(), TrTmp.data(), TrTmp.incCol(), TrTmp.incRow(),
+                  T(0),
+                  ATmp.data(), ATmp.incRow(), ATmp.incCol());
+    } else{
+      ulmblas::gemm(A.numRows(), A.numCols(), B.numCols(),
                   alpha,
                   A.conj(), A.data(), A.incRow(), A.incCol(),
                   TrTmp.conj(), TrTmp.data(), TrTmp.incRow(), TrTmp.incCol(),
                   T(0),
                   ATmp.data(), ATmp.incRow(), ATmp.incCol());
+    }
 
     copy(ATmp, A);
     //mm(alpha, B.view(Trans::view), A.view(Trans::view));

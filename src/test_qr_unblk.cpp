@@ -10,6 +10,7 @@
 #include <hpc/matvec/test/rand.hpp>
 #include <hpc/matvec/test/walltime.hpp>
 #include <hpc/matvec/qr.hpp>
+#include <hpc/matvec/norm.hpp>
 #include <hpc/matvec/mm.hpp>
 #include <hpc/matvec/print.hpp>
 
@@ -42,24 +43,6 @@ main()
   fmt::printf("qr(A) = \n");
   print(A, "%9.4f");
   
-  qr_blk(B,tauB);
-  print(tauB);
-  fmt::printf("qr_blk(A) = \n");
-  print(B, "%9.4f");
-
-  //larft(A,tau,B);
-  //larfb(A,B,A);
-
-  //fmt::printf("A =\n");
-  //print(A, "%9.4f");
-  
-  //qr_blk(A,tau);
-  //print(tau);
-  //fmt::printf("qr_blk(A) = \n");
-  //print(A, "%9.4f");
-
-  //makeQ(A, tau, Ares);
-  //fmt::printf("Ares = \n");
-  //print(Ares, "%9.4f");
+  qr_error(B,A,tauA);
 
 }
