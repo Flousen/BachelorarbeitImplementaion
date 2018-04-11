@@ -126,13 +126,13 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
 {
   std::size_t m  = C.numRows();
   std::size_t n  = C.numCols();
-  std::size_t k  = V.numCols();
+  std::size_t k  = T.numCols();
 
   trans = !trans;
 
 
   using TMV = ElementType<MatrixC>;
-  GeMatrix<TMV> W(T.numRows(),k);
+  GeMatrix<TMV> W(n,k);
   
   //auto C1 = C.dim(n,n);
   //auto V1 = V.dim(n,n).view(UpLo::LowerUnit);
@@ -144,7 +144,14 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
 
 // W := C' * V  =  (C1'*V1 + C2'*V2)
   // W := C1'
-  copy(C.dim(n,n).view(Trans::view), W);
+  //print(C);
+  //print(W);
+  //fmt::printf("%lf %lf %lf %lf %lf \n",k, m,n, W.numRows(), W.numCols());
+  for(std::size_t j = 0; j < k; ++j){
+    copy(C.row(j,0).dim(n), W.col(0,j).dim(n));
+  }
+  //print(C);
+  //print(W);
   // W := W * V1
   mm(TMV(1),
       W,
@@ -193,16 +200,15 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
   std::size_t mn = std::min(m,n);
 
   assert(tau.length() == mn);
-  std::size_t nb = 5 ; 
-  std::size_t nx = 5 ;
+  std::size_t nb = 3 ; 
+  std::size_t nx = 32 ;
   std::size_t nbmin = 2 ;
 
-  std::size_t ib = 5 ;
   GeMatrix<TMA> T(n, n);
   std::size_t i = 1;
   if(nb >= nbmin && nb < mn && nx < mn){
     for (i = 0; i < mn-nx; i+=nb){
-      //ib = std::min(mn-i+1, nb)
+      std::size_t ib = std::min(mn-i+1, nb);
       qr_unblk(A.block(i,i).dim(m-i,ib), tau.block(i).dim(ib));
       if ( i + ib <= n){
         // Form the triangular factor of the block reflector
@@ -210,12 +216,13 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
 
         larft(A.block(i,i).dim(m-i,ib),
                tau.block(i).dim(ib),
-               T.block(0,0).dim(ib,ib));
+               T.block(0,0).dim(m-i,ib));
         // Apply H' to A(i:m,i+ib:n) from the left
         larfb(A.block(i,i).dim(m-i,ib),
-              T.block(0,0).dim(ib,ib),
+              T.block(0,0).dim(m-i,ib),
               A.block(i,i + ib).dim(m-i, n-i-ib),
               true);
+
       }
     }
   }
@@ -250,10 +257,10 @@ qr_blke(MatrixA &&A, VectorTau &&tau)
 
         larft(A.block(i,i).dim(m-i,nb),
                tau.block(i).dim(nb),
-               T.block(0,0).dim(nb,nb));
+               T.block(0,0).dim(n,nb));
         // Apply H' to A(i:m,i+nb:n) from the left
         larfb(A.block(i,i).dim(m-i,nb),
-              T.block(0,0).dim(nb,nb),
+              T.block(0,0).dim(n,nb),
               A.block(i,i + nb).dim(m-i, n-i-nb),
               true);
       }
@@ -278,7 +285,7 @@ qr_blk2(MatrixA &&A, VectorTau &&tau)
   assert(tau.length() == mn);
   std::size_t nb = 5 ; 
 
-  GeMatrix<TMA> T(n, n);
+  GeMatrix<TMA> T(nb, nb);
 
   if( nb < mn ){
     //nb = std::min(mn-i+1, nb)
@@ -289,11 +296,11 @@ qr_blk2(MatrixA &&A, VectorTau &&tau)
     // H = H(i) H(i+1) . . . H(i+nb-1)
     larft(A.dim(m,nb),
            tau.dim(nb),
-           T.block(0,0).dim(nb,nb));
+           T);
     
     // Apply H' to A(i:m,i+nb:n) from the left
     larfb(A.dim(m,nb),
-          T.block(0,0).dim(nb,nb),
+          T,
           A.block(0,nb).dim(m, n-nb),
           true);
 
@@ -310,6 +317,8 @@ void makeQ(MatrixA &&A, VectorTau &&tau, MatrixQ &&Q){
   assert(A.numRows() == Q.numRows());
   assert(A.numCols() == Q.numCols());
   
+
+  // make eye
   std::size_t n  = A.numCols();
   std::size_t m  = A.numRows();
   for(std::size_t i = 0; i < n; ++i){
@@ -320,7 +329,8 @@ void makeQ(MatrixA &&A, VectorTau &&tau, MatrixQ &&Q){
   
   using TM = ElementType<MatrixA>;
   GeMatrix<TM> T(n, n);
-
+  
+  // appy H(1) *** H(n) to eye
   larft(A, tau, T);
   larfb(A, T, Q);
   
@@ -328,12 +338,11 @@ void makeQ(MatrixA &&A, VectorTau &&tau, MatrixQ &&Q){
 
 template <typename MatrixA, typename MatrixAqr, typename VectorTau,
           Require< Ge<MatrixA>, Ge<MatrixAqr>, Dense<VectorTau> > = true>
-void
+auto
 qr_error(MatrixA &&A, MatrixAqr &&Aqr, VectorTau &&tau){
 
   GeMatrix<double> nA(A.numRows(), A.numCols());
   copy(A, nA);
-
 
   GeMatrix<double> Q(A.numRows(), A.numCols());
   makeQ(Aqr, tau, Q);
@@ -341,23 +350,19 @@ qr_error(MatrixA &&A, MatrixAqr &&Aqr, VectorTau &&tau){
   GeMatrix<double> R(A.numRows(), A.numCols());
   copy(Aqr.view(UpLo::Upper),R);
 
-  mm(1.0, Q,R,
-     -1.0, nA);
+  mm(1.0, Q, R, -1.0, nA);
 
   auto normAn = test::norminf(nA);
   auto normA  = test::norminf( A);
+  auto eps = std::numeric_limits<Real<double>>::epsilon();
   auto err = normAn / (normA *
       std::min(A.numRows(), A.numCols()) * 
-      10e-15);
-
-  fmt::printf("err = %lf \n",err );
-
-  
+      eps);
+  //fmt::printf("err = %lf \n",err );
+  return err;
   
 }
 
-
 } } // namespace matvec, hpc
-
 
 #endif // HPC_MATVEC_QR_HPP

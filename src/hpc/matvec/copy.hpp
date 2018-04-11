@@ -54,11 +54,6 @@ copy(const MatrixA<T> &A, MatrixB<T> &B)
           B(i,j) = A.is_lower() ? A(i,j) : T(0);
         }
       }
-
-
-      //ulmblas::gecopy(A.numRows(), A.numCols(),
-      //                A.conj(), A.data(), A.incRow(), A.incCol(),
-      //                B.data(), B.incRow(), B.incCol());
     }
 }
 
