@@ -87,10 +87,10 @@ template <typename Alpha,
 void
 mm(const Alpha &alpha, MatrixA &&A, const MatrixB<T> &B, bool trans = false)
 {
-    assert(A.numCols()==A.numRows());
     assert(A.numCols()==B.numRows());
+    assert(B.numCols()==B.numRows());
 
-    GeMatrix<T> TrTmp(A.numRows(),A.numCols());
+    GeMatrix<T> TrTmp(B.numRows(),B.numCols());
     copy(B,TrTmp);
 
     GeMatrix<T> ATmp(A.numRows(),A.numCols());

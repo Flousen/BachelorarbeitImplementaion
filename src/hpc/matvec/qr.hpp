@@ -130,55 +130,45 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
 
   trans = !trans;
 
-
   using TMV = ElementType<MatrixC>;
   GeMatrix<TMV> W(n,k);
-  
-  //auto C1 = C.dim(n,n);
-  //auto V1 = V.dim(n,n).view(UpLo::LowerUnit);
-  //
-  ////if(m > k){
-  //  auto C2 = C.block(n,0).dim(m-n,n).view();
-  //  auto V2 = V.block(n,0).dim(m-n,n).view();
-  ////} 
 
-// W := C' * V  =  (C1'*V1 + C2'*V2)
+  // W := C' * V  =  (C1'*V1 + C2'*V2)
   // W := C1'
-  //print(C);
-  //print(W);
-  //fmt::printf("%lf %lf %lf %lf %lf \n",k, m,n, W.numRows(), W.numCols());
   for(std::size_t j = 0; j < k; ++j){
-    copy(C.row(j,0).dim(n), W.col(0,j).dim(n));
+    copy(C.row(j,0), W.col(0,j));
   }
-  //print(C);
-  //print(W);
   // W := W * V1
   mm(TMV(1),
       W,
-      V.dim(n,n).view(UpLo::LowerUnit));
+      V.dim(k,k).view(UpLo::LowerUnit)
+      );
   if(m > k){
     // W := W + C2'*V2
     mm(TMV(1),
-        C.block(n,0).dim(m-n,n).view(Trans::view),
-        V.block(n,0).dim(m-n,n),
+        C.block(k,0).view(Trans::view),
+        V.block(k,0),
         TMV(1),
         W);
   }
   // W :=  W * T
-  mm(TMV(1), W, T.view(UpLo::Upper), trans);
+  mm(TMV(1),
+     W,
+     T.view(UpLo::Upper),
+     trans);
 // C := C - V * W'
   if(m > k){
     // C2 := C2 - V2 * W'
     mm(TMV(-1),
-       V.block(n,0).dim(m-n,n),
+       V.block(k,0),
        W.view(Trans::view),
        TMV(1),
-       C.block(n,0).dim(m-n,n));
+       C.block(k,0));
   }
   // W := W * V1'
   mm(TMV(1),
      W,
-     V.dim(n,n).view(Trans::view).view(UpLo::UpperUnit));
+     V.dim(k,k).view(Trans::view).view(UpLo::UpperUnit));
   // C1 := C1 - W'
   for(std::size_t j = 0; j < k; j++){
     for(std::size_t i = 0; i < n; i++){
@@ -200,11 +190,11 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
   std::size_t mn = std::min(m,n);
 
   assert(tau.length() == mn);
-  std::size_t nb = 3 ; 
-  std::size_t nx = 32 ;
+  std::size_t nb = 5 ; 
+  std::size_t nx = 5 ;
   std::size_t nbmin = 2 ;
 
-  GeMatrix<TMA> T(n, n);
+  GeMatrix<TMA> T(nb, nb);
   std::size_t i = 1;
   if(nb >= nbmin && nb < mn && nx < mn){
     for (i = 0; i < mn-nx; i+=nb){
@@ -216,10 +206,10 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
 
         larft(A.block(i,i).dim(m-i,ib),
                tau.block(i).dim(ib),
-               T.block(0,0).dim(m-i,ib));
+               T.dim(ib,ib));
         // Apply H' to A(i:m,i+ib:n) from the left
         larfb(A.block(i,i).dim(m-i,ib),
-              T.block(0,0).dim(m-i,ib),
+              T.dim(ib,ib),
               A.block(i,i + ib).dim(m-i, n-i-ib),
               true);
 
@@ -245,11 +235,11 @@ qr_blke(MatrixA &&A, VectorTau &&tau)
   assert(tau.length() == mn);
   std::size_t nb = 5 ; 
 
-  GeMatrix<TMA> T(n, n);
+  GeMatrix<TMA> T(nb, nb);
   std::size_t i = 1;
   if( nb < mn ){
     for (i = 0; i < mn; i+=nb){
-      //nb = std::min(mn-i+1, nb)
+      //nb = std::min(mn-i, nb)
       qr_unblk(A.block(i,i).dim(m-i,nb), tau.block(i).dim(nb));
       if ( i + nb <= n){
         // Form the triangular factor of the block reflector
@@ -257,10 +247,10 @@ qr_blke(MatrixA &&A, VectorTau &&tau)
 
         larft(A.block(i,i).dim(m-i,nb),
                tau.block(i).dim(nb),
-               T.block(0,0).dim(n,nb));
+               T.dim(nb,nb));
         // Apply H' to A(i:m,i+nb:n) from the left
         larfb(A.block(i,i).dim(m-i,nb),
-              T.block(0,0).dim(n,nb),
+              T.dim(nb,nb),
               A.block(i,i + nb).dim(m-i, n-i-nb),
               true);
       }
@@ -358,7 +348,6 @@ qr_error(MatrixA &&A, MatrixAqr &&Aqr, VectorTau &&tau){
   auto err = normAn / (normA *
       std::min(A.numRows(), A.numCols()) * 
       eps);
-  //fmt::printf("err = %lf \n",err );
   return err;
   
 }

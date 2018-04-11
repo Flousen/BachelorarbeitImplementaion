@@ -17,8 +17,8 @@
 #define MIN_N 10
 #define INC_M 10
 #define INC_N 10
-#define MAX_M 100
-#define MAX_N 100
+#define MAX_M 100 
+#define MAX_N 100 
 
 int
 main()
@@ -37,7 +37,7 @@ main()
   //fmt::printf("A = \n");
   //print(A, "%9.4f");
 
-  qr_unblk(A,tauA);
+  qr_blk2(A,tauA);
   //fmt::printf("heho\n\n");
   //print(tauA);
   //fmt::printf("qr(A) = \n");
