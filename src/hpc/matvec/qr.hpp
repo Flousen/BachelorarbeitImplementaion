@@ -60,7 +60,10 @@ void qr_unblk(MatrixA &&A, VectorTau &&tau)
 
   DenseVector<T> work(mn);
   for (std::size_t i = 0; i < mn; ++i){
+    fmt::printf("%lf",i);
+    print(A, "%9.4f");
     householderVector(A(i,i), A.col(i+1,i),tau(i));
+    
     if (i < n && tau(i) != T(0)) {
       AII = A(i,i);
       A(i,i) = T(1);
@@ -200,6 +203,8 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
     for (i = 0; i < mn-nx; i+=nb){
       std::size_t ib = std::min(mn-i+1, nb);
       qr_unblk(A.block(i,i).dim(m-i,ib), tau.block(i).dim(ib));
+     
+      
       if ( i + ib <= n){
         // Form the triangular factor of the block reflector
         // H = H(i) H(i+1) . . . H(i+ib-1)
@@ -337,11 +342,11 @@ qr_error(MatrixA &&A, MatrixAqr &&Aqr, VectorTau &&tau){
   GeMatrix<double> Q(A.numRows(), A.numCols());
   makeQ(Aqr, tau, Q);
   
-  GeMatrix<double> R(A.numRows(), A.numCols());
-  copy(Aqr.view(UpLo::Upper),R);
-
-  mm(1.0, Q, R, -1.0, nA);
-
+  std::size_t n = Aqr.numCols() ;
+  GeMatrix<double> R(n, n);
+  
+  copy(Aqr.dim(n,n).view(UpLo::Upper), R);
+  
   auto normAn = test::norminf(nA);
   auto normA  = test::norminf( A);
   auto eps = std::numeric_limits<Real<double>>::epsilon();

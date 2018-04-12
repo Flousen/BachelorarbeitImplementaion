@@ -12,28 +12,24 @@
 namespace hpc { namespace matvec {
 
 template <typename T, template<typename> class MatrixA,
-          typename lu_func,
+          typename qr_func,
           Require< Ge<MatrixA<T>> > = true>
 std::pair<double, double>
 test_qr(const MatrixA<T> &A0, qr_func qr)
 {
     GeMatrix<double>         A(A0.numRows(), A0.numCols());
-    DenseVector<std::size_t> tauA(A.numRows());
+    DenseVector<std::size_t> tauA(std::min(A.numRows(),A.numCols()));
 
     copy(A0, A);
-    std::ptrdiff_t res;
 
     test::WallTime<double> timer;
-
     timer.tic();
-    res = qr(A, tauA);
+    qr(A, tauA);
     double time = timer.toc();
+
 
     double err  = qr_error(A0, A, tauA);
 
-    if (res!=-1) {
-        fmt::printf("Matrix is (numerically) singular\n");
-    }
     return std::pair<double, double>(err, time);
 }
 
@@ -41,10 +37,10 @@ test_qr(const MatrixA<T> &A0, qr_func qr)
 
 #define MIN_M 20
 #define MIN_N 10
-#define INC_M 5
-#define INC_N 10
-#define MAX_M 100
-#define MAX_N 100
+#define INC_M 10
+#define INC_N 5 
+#define MAX_M 1000
+#define MAX_N 1000
 
 int
 main()
@@ -58,11 +54,9 @@ main()
   auto qr1 = qr_unblk<GeMatrix<double> &, DenseVector<std::size_t> &>;
 
   fmt::printf("%5s %5s "
-              "%10s %10s %10s "
               "%10s %10s %10s\n",
               "M", "N",
-              "Error 1", "Time 1", "MFLOPS 1",
-              "Error 2", "Time 2", "MFLOPS 2");
+              "Error 1", "Time 1", "MFLOPS 1");
 
 
   for (std::size_t m=MIN_M, n=MIN_N;
@@ -77,14 +71,11 @@ main()
     flops /= 1000000.0;
 
     auto A0   = A.dim(m, n);
+    fmt::printf("%5d %5d ", m, n);
     auto tst1 = test_qr(A0, qr1);
     //auto tst2 = test_lu(A0, lu2);
 
-    fmt::printf("%5d %5d "
-                "%10.2e %10.2f %10.2f "
-                "%10.2e %10.2f %10.2f\n",
-                m, n,
-                tst1.first, tst1.second, flops/tst1.second,
-                tst2.first, tst2.second, flops/tst2.second);
+    fmt::printf( "%10.2e %10.2f %10.2f\n",
+                tst1.first, tst1.second, flops/tst1.second);
   }
 }

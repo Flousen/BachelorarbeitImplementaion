@@ -17,8 +17,8 @@
 #define MIN_N 10
 #define INC_M 10
 #define INC_N 10
-#define MAX_M 100 
-#define MAX_N 100 
+#define MAX_M 10
+#define MAX_N 10
 
 int
 main()
@@ -34,14 +34,14 @@ main()
   test::rand(A);
   copy(A,B);
 
-  //fmt::printf("A = \n");
-  //print(A, "%9.4f");
+  fmt::printf("A = \n");
+  print(A, "%9.4f");
 
-  qr_blk2(A,tauA);
-  //fmt::printf("heho\n\n");
-  //print(tauA);
-  //fmt::printf("qr(A) = \n");
-  //print(A, "%9.4f");
+  qr_unblk(A,tauA);
+  fmt::printf("tauA = \n");
+  print(tauA);
+  fmt::printf("qr(A) = \n");
+  print(A, "%9.4f");
   
   double err = qr_error(B,A,tauA);
   fmt::printf("err = %lf\n", err);
