@@ -12,13 +12,15 @@
 namespace hpc { namespace mklblas {
 
 void
-gemm(char transa, char transb, MKL_INT m, MKL_INT n, MKL_INT k,
-     double alpha, const double *a, MKL_INT lda,
-     const double *b, MKL_INT ldb,
-     double beta, double *c, MKL_INT ldc)
+qr_unblk (int matrix_layout, lapack_int m, lapack_int n,
+     double* a, lapack_int lda, double* tau)
 {
-    dgemm(&transa, &transb, &m, &n, &k, &alpha, a, &lda, b, &ldb, &beta,
-          c, &ldc);
+    //dgemm(&transa, &transb, &m, &n, &k, &alpha, a, &lda, b, &ldb, &beta,
+    //      c, &ldc);
+    //LAPACKE_dgeqr2 (int matrix_layout, lapack_int m, lapack_int n,
+    //    double* a, lapack_int lda, double* tau);
+    LAPACKE_dgeqr2 (matrix_layout, m, n,
+                    a, lda, tau);
 }
 
 
@@ -27,33 +29,16 @@ gemm(char transa, char transb, MKL_INT m, MKL_INT n, MKL_INT k,
 ///
 /// - gemm operation $C \leftarrow \beta C + \alpha A B$
 ///
-template <typename Alpha, typename Beta,
-          typename T, template<typename> class MatrixA,
-                      template<typename> class MatrixB,
-                      typename MatrixC,
-          Require< Ge<MatrixA<T>>,
-                   Ge<MatrixB<T>>,
-                   Ge<MatrixC>
-                 > = true>
+template < typename T, typename MatrixA,
+                      typename VectorTau>
 void
-mm(const Alpha &alpha, const MatrixA<T> &A, const MatrixB<T> &B,
-   const Beta &beta, MatrixC &&C)
+qr_unblk(MatrixA &&A, VectroTau &&tau)
 {
-    auto m = assertEqual(C.numRows(), A.numRows());
-    auto n = assertEqual(C.numCols(), B.numCols());
-    auto k = assertEqual(A.numCols(), B.numRows());
+    //auto m = assertEqual(C.numRows(), A.numRows());
+    //auto n = assertEqual(C.numCols(), B.numCols());
 
-    char transA = A.incRow()==1 ? 'N' : 'T';
-    char transB = B.incRow()==1 ? 'N' : 'T';
-
-    assert(std::min(A.incRow(), A.incCol())==1);
-    assert(std::min(B.incRow(), B.incCol())==1);
-    assert(C.incRow()==1);
-
-    gemm(transA, transB, m, n, k, alpha,
-         A.data(), A.incCol(),
-         B.data(), B.incCol(),
-         beta, C.data(), C.incCol());
+    qr_unblk(LAPACK_COL_MAJOR, A.numRows(), A.numCols(),
+        A.data(), A.incRow());
 }
 
 } } // namespace mklblas, hpc
