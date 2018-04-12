@@ -23,12 +23,16 @@ test_qr(const MatrixA<T> &A0, qr_func qr)
     copy(A0, A);
 
     test::WallTime<double> timer;
+    //fmt::printf("befor\n"); print(A);
+
     timer.tic();
     qr(A, tauA);
     double time = timer.toc();
 
+    //fmt::printf("after\n"); print(A);
 
     double err  = qr_error(A0, A, tauA);
+
 
     return std::pair<double, double>(err, time);
 }
@@ -51,7 +55,7 @@ main()
   DenseVector<double> tauA(std::min(A.numRows(),A.numCols()));
   test::rand(A);
 
-  auto qr1 = qr_unblk<GeMatrix<double> &, DenseVector<std::size_t> &>;
+  auto qr = qr_unblk<GeMatrix<double> &, DenseVector<std::size_t> &>;
 
   fmt::printf("%5s %5s "
               "%10s %10s %10s\n",
@@ -72,10 +76,10 @@ main()
 
     auto A0   = A.dim(m, n);
     fmt::printf("%5d %5d ", m, n);
-    auto tst1 = test_qr(A0, qr1);
-    //auto tst2 = test_lu(A0, lu2);
+    auto tst1 = test_qr(A0, qr);
 
-    fmt::printf( "%10.2e %10.2f %10.2f\n",
+    fmt::printf( "%lf %10.2f %10.2f\n",
                 tst1.first, tst1.second, flops/tst1.second);
+  break;
   }
 }

@@ -202,7 +202,6 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
       std::size_t ib = std::min(mn-i+1, nb);
       qr_unblk(A.block(i,i).dim(m-i,ib), tau.block(i).dim(ib));
      
-      
       if ( i + ib <= n){
         // Form the triangular factor of the block reflector
         // H = H(i) H(i+1) . . . H(i+ib-1)
@@ -220,7 +219,7 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
     }
   }
   if ( i <= mn){
-    qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(m-i));
+    qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(n-i));
   }
 }
 
@@ -350,7 +349,6 @@ qr_error(MatrixA &&A, MatrixAqr &&Aqr, VectorTau &&tau){
   auto normAn = test::norminf(nA);
   auto normA  = test::norminf( A);
   auto eps = std::numeric_limits<Real<double>>::epsilon();
-  //auto eps = 0.001;
   auto err = normAn / (normA *
       std::min(A.numRows(), A.numCols()) * 
       eps);
