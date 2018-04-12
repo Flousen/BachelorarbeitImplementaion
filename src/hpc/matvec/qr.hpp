@@ -60,8 +60,6 @@ void qr_unblk(MatrixA &&A, VectorTau &&tau)
 
   DenseVector<T> work(mn);
   for (std::size_t i = 0; i < mn; ++i){
-    fmt::printf("%lf",i);
-    print(A, "%9.4f");
     householderVector(A(i,i), A.col(i+1,i),tau(i));
     
     if (i < n && tau(i) != T(0)) {
@@ -344,12 +342,15 @@ qr_error(MatrixA &&A, MatrixAqr &&Aqr, VectorTau &&tau){
   
   std::size_t n = Aqr.numCols() ;
   GeMatrix<double> R(n, n);
-  
   copy(Aqr.dim(n,n).view(UpLo::Upper), R);
+
+  mm(1.0, Q,R,
+     -1.0, nA);
   
   auto normAn = test::norminf(nA);
   auto normA  = test::norminf( A);
   auto eps = std::numeric_limits<Real<double>>::epsilon();
+  //auto eps = 0.001;
   auto err = normAn / (normA *
       std::min(A.numRows(), A.numCols()) * 
       eps);
