@@ -3,7 +3,7 @@
 
 #include <complex>
 
-namespace hpc { namespace matvec {
+namespace hpc {
 
 /// Real
 
@@ -73,6 +73,6 @@ using Tr
 template <typename T, typename... Args>
 using Require = typename std::common_type<T, Args...>::type;
 
-} } // namespace matvec, hpc
+} // namespace hpc
 
 #endif // HPC_MATVEC_TRAITS_HPP

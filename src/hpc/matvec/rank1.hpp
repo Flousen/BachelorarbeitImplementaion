@@ -22,8 +22,6 @@ void
 rank1(const Alpha &alpha, const VectorX &x, const VectorY &y,
       MatrixA &&A)
 {
-    assert(x.length() == A.numRows());
-    assert(y.length() == A.numCols());
     if (A.incRow()<A.incCol()) {
         for (std::size_t j=0; j<A.numCols(); ++j) {
             axpy(alpha*y(j), x, A.col(0,j));

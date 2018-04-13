@@ -16,6 +16,11 @@
 #include <hpc/matvec/traits.hpp>
 #include <hpc/ulmblas/axpy.hpp>
 
+#include <hpc/mklblas/mv.hpp>
+#include <hpc/mklblas/sv.hpp>
+#include <hpc/mklblas/mm.hpp>
+#include <hpc/mklblas/sm.hpp>
+
 namespace hpc { namespace matvec {
 
 template <typename MatrixA, typename VectorPiv,
