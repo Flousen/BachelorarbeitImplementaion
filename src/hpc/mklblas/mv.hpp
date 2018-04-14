@@ -9,7 +9,7 @@
 #include <mkl_types.h>
 #include <mkl_blas.h>
 
-namespace hpc { namespace matvec {
+namespace hpc { namespace mklblas {
 
 void
 gemv(char trans, MKL_INT m, MKL_INT n, double alpha,

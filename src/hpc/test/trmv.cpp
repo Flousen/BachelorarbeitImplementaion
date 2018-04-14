@@ -10,13 +10,13 @@
 #include <hpc/matvec/test/walltime.hpp>
 #include <hpc/matvec/test/diagdom.hpp>
 
-#include <hpc/mklblas/trmv.hpp>
 
 // from intel mkl
 #include <mkl_types.h>
 #include <mkl_lapack.h>
 #define MAX_M 5 
 #define MAX_N 5
+
 
 int
 main()
@@ -35,9 +35,9 @@ main()
     fmt::printf("B = \n"); print(B, "%9.4f");
     fmt::printf("x = \n"); print(x, "%9.4f");
     
-    hpc::mklblas::mv(1.0, B, x);    
+    hpc::matvec::mv(1.0, B, x);    
+//    hpc::mklblas::mv(1.0, B, x);    
     
     fmt::printf("x = \n"); print(x, "%9.4f");
-
 
 }

@@ -9,7 +9,7 @@
 #include <mkl_types.h>
 #include <mkl_blas.h>
 
-namespace hpc { namespace matvec {
+namespace hpc { namespace mklblas {
 
 void trmm(const char side, const char uplo, const char transa,
            const char diag, const MKL_INT m, const MKL_INT n,

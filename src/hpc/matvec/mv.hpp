@@ -29,6 +29,7 @@ void
 mv(const Alpha &alpha, const MatrixA<T> &A, const VectorX<T> &x,
    const Beta &beta, VectorY &&y)
 {
+   
     assert(A.numRows()==y.length());
     assert(A.numCols()==x.length());
 
@@ -56,6 +57,25 @@ mv(const Alpha &alpha, const MatrixA<T> &A, const VectorX<T> &x,
             y(i) += alpha*dot(A.row(i,0),x);
         }
     }
+}
+
+template <typename Alpha,
+          typename T, template<typename> class MatrixA,
+                      template<typename> class VectorX,
+          Require< Tr<MatrixA<T>>,
+                   Dense<VectorX<T>>
+                 > = true>
+void
+mv(const Alpha &alpha, const MatrixA<T> &A, const VectorX<T> &x)
+{
+    assert(A.numCols()==x.length());
+    
+    GeMatrix<T> At(A.numRows(),A.numCols());
+    DenseVector<T> erg(x.length());
+
+    copy(A,At);
+    mv(alpha,At,x,T(0),erg);
+    copy(erg,x);
 }
 
 } } // namespace matvec, hpc

@@ -9,7 +9,7 @@
 #include <mkl_types.h>
 #include <mkl_blas.h>
 
-namespace hpc { namespace matvec {
+namespace hpc { namespace mklblas {
 
 void
 trmv (const char uplo, const char transa, const char diag, const MKL_INT n,
@@ -33,7 +33,6 @@ mv(const Alpha &alpha, const MatrixA<T> &A, const VectorX<T> &x)
     const char uplo = A.is_lower() ? 'U' : 'L';
     const char trans = A.incRow()==1 ? 'N' : 'T';
     const char diag = A.is_unit() ? 'U' : 'N' ;
-
     trmv(uplo, trans, diag, A.numCols(),
          A.data(), A.incCol(), x.data(), x.inc());
 }
