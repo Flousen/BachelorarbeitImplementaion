@@ -9,8 +9,8 @@
 #include <hpc/matvec/test/rand.hpp>
 #include <hpc/matvec/test/walltime.hpp>
 
-#define MAX_M 20
-#define MAX_N 10
+#define MAX_M 200
+#define MAX_N 100
 
 int
 main()
@@ -28,16 +28,18 @@ main()
   test::rand(A);
   copy(A,B);
 
-  fmt::printf("A = \n");
-  print(A, "%9.4f");
+  //fmt::printf("A = \n");
+  //print(A, "%9.4f");
+  //fmt::printf("tauA = \n");
+  //print(tauA);
 
   //qr_unblk(A,tauA);
-  hpc::mklblas::qr_unblk(A,tauA);
+  hpc::mklblas::qr_blk_ref(A, tauA);
 
-  fmt::printf("tauA = \n");
-  print(tauA);
-  fmt::printf("qr(A) = \n");
-  print(A, "%9.4f");
+  //fmt::printf("tauA = \n");
+  //print(tauA);
+  //fmt::printf("qr(A) = \n");
+  //print(A, "%9.4f");
   
   double err = qr_error(B,A,tauA);
   fmt::printf("m = %lf\n", A.numRows());

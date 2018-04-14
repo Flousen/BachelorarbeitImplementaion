@@ -5,7 +5,6 @@
 #include <cstddef>
 #include <type_traits>
 
-#include <hpc/ulmblas/dot.hpp>
 
 #include <hpc/matvec/iamax.hpp>
 #include <hpc/matvec/rank1.hpp>
@@ -19,7 +18,6 @@
 #include <hpc/matvec/densevector.hpp>
 #include <hpc/matvec/gematrix.hpp>
 #include <hpc/matvec/traits.hpp>
-#include <hpc/ulmblas/axpy.hpp>
 
 namespace hpc { namespace matvec {
 
@@ -32,13 +30,14 @@ householderVector(Alpha &alpha, VectorV &&v, Tau &tau)
     return;
   }
   //T xnorm = norm();
-  auto dot = hpc::ulmblas::dot( v.length(),
-              false, v.data(), v.inc(),
-              false, v.data(), v.inc() );
-  if (dot == ElementType<VectorV>(0)){
+  //auto dot = hpc::ulmblas::dot( v.length(),
+  //            false, v.data(), v.inc(),
+  //            false, v.data(), v.inc() );
+  double dotprod = dot(v,v);
+  if (dotprod == ElementType<VectorV>(0)){
     tau = Tau(0);
   } else {
-    auto beta = -std::copysign(sqrt(alpha*alpha + dot),alpha);
+    auto beta = -std::copysign(sqrt(alpha*alpha + dotprod),alpha);
     tau = (beta - alpha) / beta;
     scal(1/(alpha - beta),v);
     alpha = beta;
