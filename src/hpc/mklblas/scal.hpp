@@ -1,5 +1,5 @@
-#ifndef HPC_MKLBLAS_scal_HPP
-#define HPC_MKLBLAS_scal_HPP
+#ifndef HPC_MKLBLAS_SCAL_HPP
+#define HPC_MKLBLAS_SCAL_HPP
 
 #include <cstddef>
 #include <hpc/assert.hpp>

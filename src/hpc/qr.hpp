@@ -176,8 +176,15 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
   if(nb >= nbmin && nb < mn && nx < mn){
     for (i = 0; i < mn-nx; i+=nb){
       std::size_t ib = std::min(mn-i+1, nb);
+
+      #ifdef MKLBLAS
       qr_unblk(A.block(i,i).dim(m-i,ib), tau.block(i).dim(ib));
-     
+      //qr_unblk_ref(A.block(i,i).dim(m-i,ib), tau.block(i).dim(ib));
+      #endif
+
+      #ifdef MATVEC
+      qr_unblk(A.block(i,i).dim(m-i,ib), tau.block(i).dim(ib));
+      #endif
       if ( i + ib <= n){
         // Form the triangular factor of the block reflector
         // H = H(i) H(i+1) . . . H(i+ib-1)

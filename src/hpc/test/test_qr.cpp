@@ -9,13 +9,12 @@
 #include <hpc/matvec/test/rand.hpp>
 #include <hpc/matvec/test/walltime.hpp>
 
-#define MAX_M 200
-#define MAX_N 100
+#define MAX_M 20 
+#define MAX_N 10 
 
 int
 main()
 {
-  //using namespace hpc::matvec;
   
   //auto qr= <GeMatrix<double> &, DenseVector<std::size_t> &>; 
 
@@ -28,19 +27,22 @@ main()
   hpc::matvec::test::rand(A);
   hpc::matvec::copy(A,B);
 
-  //fmt::printf("A = \n");
-  //print(A, "%9.4f");
-  //fmt::printf("tauA = \n");
-  //print(tauA);
+  hpc::mklblas::scal(2.0, tauA);
+
+  fmt::printf("A = \n");
+  hpc::matvec::print(A, "%9.4f");
 
   //qr_unblk(A,tauA);
   //hpc::mklblas::qr_blk_ref(A, tauA);
-  hpc::mklblas::qr_blk(A, tauA);
+  //hpc::mklblas::qr_unblk(A, tauA);
+  //hpc::mklblas::qr_blk(A, tauA);
+  //hpc::matvec::qr_unblk(A, tauA);
+  hpc::matvec::qr_blke(A, tauA);
 
-  //fmt::printf("tauA = \n");
-  //print(tauA);
-  //fmt::printf("qr(A) = \n");
-  //print(A, "%9.4f");
+  fmt::printf("tauA = \n");
+  hpc::matvec::print(tauA);
+  fmt::printf("qr(A) = \n");
+  hpc::matvec::print(A, "%9.4f");
   
   double err = hpc::matvec::qr_error(B,A,tauA);
   fmt::printf("m = %lf\n", A.numRows());
