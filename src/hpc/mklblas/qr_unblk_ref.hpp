@@ -1,5 +1,5 @@
-#ifndef HPC_MKLBLAS_QRUNB_HPP
-#define HPC_MKLBLAS_QRUNB_HPP
+#ifndef HPC_MKLBLAS_QRUNBREF_HPP
+#define HPC_MKLBLAS_QRUNBREF_HPP
 
 #include <cstddef>
 #include <hpc/assert.hpp>
@@ -14,7 +14,7 @@
 namespace hpc { namespace mklblas {
 
 void
-qr_unblk(MKL_INT m, MKL_INT n, double* a, MKL_INT lda,
+qr_unblk_blas(MKL_INT m, MKL_INT n, double* a, MKL_INT lda,
          double* tau, double* work, MKL_INT *info )
 {
     dgeqr2(&m, &n, a, &lda, tau, work, info);
@@ -23,7 +23,7 @@ qr_unblk(MKL_INT m, MKL_INT n, double* a, MKL_INT lda,
 template < typename MatrixA, typename VectorTau,
            Require<Ge<MatrixA>, Dense<VectorTau>> = true>
 void
-qr_unblk(MatrixA &&A, VectorTau &&tau)
+qr_unblk_ref(MatrixA &&A, VectorTau &&tau)
 {
     //auto m = assertEqual(C.numRows(), A.numRows());
     //auto n = assertEqual(C.numCols(), B.numCols());
@@ -31,7 +31,7 @@ qr_unblk(MatrixA &&A, VectorTau &&tau)
     hpc::matvec::GeMatrix<double> W (A.numRows(), A.numCols());
     long long int info  = 0;
 
-    qr_unblk(A.numRows(), A.numCols(),
+    qr_unblk_blas(A.numRows(), A.numCols(),
         A.data(), A.incCol(), tau.data(), W.data(), &info);
     if (info!=0)
       fmt::printf("Obacht LAPACK info illegal value at: %d\n", info);
