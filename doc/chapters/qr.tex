@@ -15,7 +15,16 @@ mit einer orthogonalen Matrix $ Q \in \mathbb{R}^{m \times n} $ und einer oberen
 -Ausgleichsprobleme 
 -QR-Verfahren 
 
-\section{LAPACK}
+\section{Householder Spiegelung}
+\subsection{Householder Vector}
+\subsection{Apply vector}
+\begin{align}
+H =& I - \dfrac{vv'}{\tau}\\ 
+H A_2 =& A_2 - \dfrac{vv'}{\tau}A_2\\
+=& A_2 - \dfrac{v}{\tau}*(v'*A_2)
+\end{align}
+
+\section{LAPACK QR}
 Der von LAPACK benutzte Algorithmus \cite{DGEQR2}
 \begin{align}
 	H &= I - \tau \omega \omega^T \\
@@ -43,7 +52,7 @@ for i = 0 : min(m,n)
     A(i,i) = AII
 \end{lstlisting}
 
-\section{NUM1 Urban}
+\section{NUM1 Urban QR}
 Algorithmus aus Numerik 1
 
 Mathe
@@ -87,16 +96,17 @@ for i = i:n
 
 \section{Unterschiede der Algorithmen}
 LAPCK hat das Tau \\
-Vor und Nachteile
+Vor und Nachteile oder so was
 
 \section{QR Blocked}
 Geblockte Alorighmus
-
 \begin{align}
-	H &= I - VTV'\\
-	H' &= I - VT'V'\\ 
-	H'A_2 &= A_2 - VT'V'A_2
+H &= I - VTV'\\
+H' &= I - VT'V'\\ 
+H'A_2 &= A_2 - VT'V'A_2
 \end{align}
+
+
 
 
 
@@ -139,12 +149,13 @@ Wende $H^T$ auf $A_{0, \text{bs}}$ und $ A_{0,\text{bs}}$ an.
 
 Fahre mit $A_{0, \text{bs}}$ fort.
 
-\subsection{Calc Factor T}
+\subsection{Calc Factor T larft}
 \cite{Joffrain:2006:AHT:1141885.1141886}
 
+\subsection{Apply H larfb}
 
 
-\subsection{Pseudo Code}
+\subsection{Iterativer Algorithmus}
 
 \begin{algorithmic}
 \For {i = 0 : n}
@@ -158,6 +169,6 @@ Fahre mit $A_{0, \text{bs}}$ fort.
 \end{algorithmic}
 
 
-\section{Rekursiver Algorithmus}
+\subsection{Rekursiver Algorithmus}
 
 
