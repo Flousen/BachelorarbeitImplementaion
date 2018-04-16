@@ -18,6 +18,8 @@ BCOR15mm             % mehr li. Rand zum Binden der Arbeit
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
+\usepackage{algpseudocode}
+
 % Helvetica als Standard-Dokumentschrift
 \usepackage[scaled]{helvet}
 \renewcommand{\familydefault}{\sfdefault} 
@@ -57,9 +59,9 @@ BCOR15mm             % mehr li. Rand zum Binden der Arbeit
 \newcommand{\titel}{High Performance implementation of QR factorization}
 \newcommand{\jahr}{2018}
 \newcommand{\matnr}{884948}
-\newcommand{\gutachterA}{Prof.~Dr.~Streng Geheim}
-\newcommand{\gutachterB}{Prof.~Dr.~Un Leserlich}
-\newcommand{\betreuer}{Betreuername}
+\newcommand{\gutachterA}{Dr.~Michael Lehn}
+\newcommand{\gutachterB}{Dr.~Un Leserlich}
+\newcommand{\betreuer}{Dr.~Michael Lehn}
 
 % hier die Fakultät auswählen
 %\newcommand{\fakultaet}{---  Im Quellcode anpassen nicht vergessen! ---}
@@ -69,7 +71,7 @@ BCOR15mm             % mehr li. Rand zum Binden der Arbeit
 %\newcommand{\fakultaet}{Naturwissenschaften}
 
 % hier das Institut einsetzen
-\newcommand{\institut}{--- Institut im Quellcode anpassen nicht vergessen! ---}
+\newcommand{\institut}{Institut für Numerische Mathematik}
 
 %color in tables
 \usepackage{colortbl}
@@ -154,7 +156,10 @@ pdfborder=0 0 0	% keine Box um die Links!
 
 \mainmatter
 % TODO Kapitel einbinden
+\input{chapters/einleitung}
+\input{chapters/mkl}
 \input{chapters/qr}
+\input{chapters/bench}
 
 
 \appendix

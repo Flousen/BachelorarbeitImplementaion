@@ -1,7 +1,22 @@
 \chapter{QR factorisation}
 
+\section{QR-Zerlegung}
+\subsubsection{Definition}
+Eine Matrix $A \in \mathbb{R}^{m \times n}$ , $m \ge n$ besitzt eine eindeutige QR-Zerlegung.
+\begin{align}
+	A = QR
+\end{align}
+mit einer orthogonalen Matrix $ Q \in \mathbb{R}^{m \times n} $ und einer oberen Dreiecksmatrix $ R \in \mathbb{R}^{n \times n}$ 
+
+% TODO Quelle suchen das ist von Wikipedia -.-
+
+\subsubsection{QR Anwendung oder so was}
+-LGS 
+-Ausgleichsprobleme 
+-QR-Verfahren 
+
 \section{LAPACK}
-Mathe \cite{DGEQR2}
+Der von LAPACK benutzte Algorithmus \cite{DGEQR2}
 \begin{align}
 	H &= I - \tau \omega \omega^T \\
 	\tau &= \frac{\alpha - \beta}{\beta} \\
@@ -28,7 +43,9 @@ for i = 0 : min(m,n)
     A(i,i) = AII
 \end{lstlisting}
 
-\section{NUM3 Urban}
+\section{NUM1 Urban}
+Algorithmus aus Numerik 1
+
 Mathe
 \begin{align}
 	H &= I - 2 \frac{\omega \omega^T}{\omega^T \omega}\\
@@ -68,9 +85,12 @@ for i = i:n
     A(i + 1 : m, i) = w(2:m-i+1)
 \end{lstlisting}
 
+\section{Unterschiede der Algorithmen}
+LAPCK hat das Tau \\
+Vor und Nachteile
 
-
-\section{QR Blocked LAPACK}
+\section{QR Blocked}
+Geblockte Alorighmus
 
 \begin{align}
 	H &= I - VTV'\\
@@ -78,10 +98,66 @@ for i = i:n
 	H'A_2 &= A_2 - VT'V'A_2
 \end{align}
 
-\section{Fragen}
 
-%https://dl.acm.org/author_page.cfm?id=81314495332&coll=DL&dl=ACM&trk=0
-%Accumulating Householder transformations, revisited
 
-%http://delivery.acm.org/10.1145/1150000/1141886/p169-joffrain.pdf?ip=134.60.66.34&id=1141886&acc=ACTIVE%20SERVICE&key=2BA2C432AB83DA15%2E9B7742D6921DCF9C%2E4D4702B0C3E38B35%2E4D4702B0C3E38B35&__acm__=1518450839_558781379982707efd60171db6f2938b#URLTOKEN#
+Betrachte A geblockt
+\begin{align}
+	A = \left(\begin{array}{l|l}
+	A_{0, 0} & A_{0, \text{bs}} \\ \hline
+	A_{\text{bs}, 0}   & A_{\text{bs}, \text{bs}} 	
+	\end{array} \right) 
+\end{align}
+
+Berechne QR Zerlegung für Blöcke $A_{0, 0}$ und $ A_{\text{bs},0}$
+\begin{align}
+	\left(\begin{array}{l} 
+	A_{0, 0} \\ \hline
+	A_{\text{bs}, 0}
+	\end{array}\right)
+	\leftarrow
+	\left(\begin{array}{l} 
+	Q_{0, 0}  \backslash R_{0,0} \\ \hline
+	Q_{\text{bs}, 0} 
+	\end{array}\right)
+\end{align}
+
+Berechne $H(0)$...$H(bs)$ aus $Q_{0, 0}$ und $Q_{bs, 0}$ mit $H = I - V*T*V^T$.\\
+Wende $H^T$ auf $A_{0, \text{bs}}$ und $ A_{0,\text{bs}}$ an.
+\begin{align}
+	\left(\begin{array}{l} 
+	A_{0, \text{bs}} \\ \hline
+	A_{0, \text{bs}}
+	\end{array}\right)
+	\leftarrow
+	H^T \left(\begin{array}{l} 
+	A_{0, \text{bs}} \\ \hline
+	A_{0, \text{bs}}
+	\end{array}\right)
+\end{align}
+
+
+
+Fahre mit $A_{0, \text{bs}}$ fort.
+
+\subsection{Calc Factor T}
+\cite{Joffrain:2006:AHT:1141885.1141886}
+
+
+
+\subsection{Pseudo Code}
+
+\begin{algorithmic}
+\For {i = 0 : n}
+	\State QR = A;
+	\If {i + ib > n}
+		\State Calc T: H=I-VTV'
+		\State Apply H: A=H'A
+	\EndIf
+\EndFor
+
+\end{algorithmic}
+
+
+\section{Rekursiver Algorithmus}
+
 
