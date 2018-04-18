@@ -45,11 +45,11 @@ void qr_unblk(MatrixA &&A, VectorTau &&tau)
   T AII = 0;
   std::size_t m  = A.numRows();
   std::size_t n  = A.numCols();
-  std::size_t mn = std::min(m,n);
-  assert(tau.length() == mn);
-
-  hpc::matvec::DenseVector<T> work(mn);
-  for (std::size_t i = 0; i < mn; ++i){
+  assert(tau.length() == n);
+  
+  {
+  hpc::matvec::DenseVector<T> work(n);
+  for (std::size_t i = 0; i < n; ++i){
     hpc::mklblas::householderVector(A(i,i), A.col(i+1,i),tau(i));
     
     if (i < n && tau(i) != T(0)) {
@@ -57,19 +57,21 @@ void qr_unblk(MatrixA &&A, VectorTau &&tau)
       A(i,i) = T(1);
       
       hpc::mklblas::mv(T(1),
-         A.block(i,i+1).view(hpc::matvec::Trans::view),
-         A.col(i,i),
-         T(0),
-         work.block(i+1));
-  fmt::printf("bin ich da\n");
+        A.block(i,i+1).view(hpc::matvec::Trans::view),
+        A.col(i,i),
+        T(0),
+        work.block(i+1));
 
       hpc::mklblas::rank1(-tau(i),
-            A.col(i,i),
-            work.block(i+1),
-            A.block(i,i+1));
+        A.col(i,i),
+        work.block(i+1),
+        A.block(i,i+1));
 
+      fmt::printf("i = %d " , i);
+      print(work.block(i+1), "%9.4f");
       A(i,i) = AII;
     }
+  }
   }
 }
 
@@ -192,6 +194,7 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
   if(nb >= nbmin && nb < mn && nx < mn){
     for (i = 0; i < mn-nx; i+=nb){
       std::size_t ib = std::min(mn-i+1, nb);
+      qr_unblk_ref(A.block(i,i).dim(m-i,ib), tau.block(i).dim(ib));
       qr_unblk(A.block(i,i).dim(m-i,ib), tau.block(i).dim(ib));
 
       if ( i + ib <= n){
@@ -214,6 +217,7 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
     qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(n-i));
   }
 }
+
 template <typename MatrixA, typename VectorTau,
           Require< Ge<MatrixA>, Dense<VectorTau> > = true>
 void

@@ -27,34 +27,28 @@ main()
 
     GeMatrix<double> A(MAX_M, MAX_N, Order::ColMajor);
     DenseVector<double> x(A.numCols());
-    DenseVector<double> y(A.numCols());
     
     GeMatrix<double> A1(MAX_M, MAX_N, Order::ColMajor);
     DenseVector<double> x1(A.numCols());
-    DenseVector<double> y1(A.numCols());
 
     test::rand(A);
     copy(A.row(0,0), x);
-    copy(A.row(0,0), y);
 
     copy(A, A1);
     copy(x, x1);
-    copy(y, y1);
 
 
     fmt::printf("A = \n"); print(A, "%9.4f");
     fmt::printf("x = \n"); print(x, "%9.4f");
-    fmt::printf("y = \n"); print(y, "%9.4f");
     
     fmt::printf("A1 = \n"); print(A1, "%9.4f");
     fmt::printf("x1 = \n"); print(x1, "%9.4f");
-    fmt::printf("y1 = \n"); print(y1, "%9.4f");
     
     
-    hpc::matvec::rank1 (1.0, x, y, A);    
-    hpc::mklblas::rank1(1.0, x1, y1, A1);    
+    hpc::matvec::scal (2.0, x);    
+    hpc::mklblas::scal(2.0, x1);    
     
-    fmt::printf("matvec = \n"); print(A, "%9.4f");
-    fmt::printf("mkl = \n"); print(A1, "%9.4f");
+    fmt::printf("matvec = \n"); print(x, "%9.4f");
+    fmt::printf("mkl = \n"); print(x1, "%9.4f");
 
 }

@@ -76,6 +76,8 @@ void qr_unblk(MatrixA &&A, VectorTau &&tau)
             A.col(i,i),
             work.block(i+1),
             A.block(i,i+1));
+      fmt::printf("i = %d", i);
+      print(work);
 
       A(i,i) = AII;
     }

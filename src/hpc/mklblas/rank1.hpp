@@ -36,7 +36,7 @@ rank1(const Alpha &alpha, const VectorX &x, const VectorY &y,
   ger(A.numRows(), A.numCols(), alpha,
       x.data(), x.inc(),
       y.data(), y.inc(),
-      A.data(), A.incRow());
+      A.data(), A.incCol());
 }
 
 } } // namespace mklblas, hpc
