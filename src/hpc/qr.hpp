@@ -205,7 +205,7 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
     qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(n-i));
   }
 }
-/*
+
 template <typename MatrixA, typename VectorTau,
           Require< Ge<MatrixA>, Dense<VectorTau> > = true>
 void
@@ -242,7 +242,7 @@ qr_blke(MatrixA &&A, VectorTau &&tau)
     }
   }
   if ( i <= mn ){
-    qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(m-i));
+    qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(n-i));
   }
 }
 
@@ -285,4 +285,3 @@ qr_blk2(MatrixA &&A, VectorTau &&tau)
     qr_unblk(A, tau);
   }
 }
-*/

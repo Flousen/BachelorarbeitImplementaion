@@ -9,6 +9,8 @@
 #include <hpc/matvec/test/rand.hpp>
 #include <hpc/matvec/test/walltime.hpp>
 
+#include <hpc/mklblas.hpp>
+
 namespace hpc { namespace matvec {
 
 template <typename T, template<typename> class MatrixA,

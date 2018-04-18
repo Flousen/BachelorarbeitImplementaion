@@ -21,7 +21,15 @@ geqrf(MKL_INT m, MKL_INT n,
        double* tau, double* work,
        MKL_INT lwork, MKL_INT *info )
 {
-  dgeqrf(&m, &n, a, &lda, tau, work, &lwork, info );
+  lwork = -1;
+  double temp=0;
+  dgeqrf(&m, &n, a, &lda, tau,(double *) &temp, &lwork, info );
+  fmt::printf("lwork %d\n",lwork);
+  fmt::printf("tempk %d\n",(long long int)temp);
+  matvec::DenseVector<double> W((long long int) temp);
+  long long int temp2 = temp;
+  dgeqrf(&m, &n, a, &lda, tau, W.data(), &temp2, info );
+
 }
 
 template <typename MatrixA, typename VectorTau,
@@ -30,13 +38,14 @@ void
 qr_blk_ref(MatrixA &&A, VectorTau &&tau)
 {
   assert(tau.inc()==1);
-  hpc::matvec::GeMatrix<double> work (A.numRows()*64, A.numCols()*64);
+  hpc::matvec::GeMatrix<double> work (A.numRows(), A.numCols());
   long long int info = 0;
-  geqrf(A.incRow(), A.incCol(), A.data(), A.incCol(),
+  fmt::printf("passiert hier was? %d\n",A.data() );
+  geqrf(A.numRows(), A.numCols(), A.data(), A.incCol(),
          tau.data(), work.data(), work.incCol(), &info);
 
   if (info!=0)
-    fmt::printf("Obacht LAPACK info illegal value at: %d\n", info);
+    fmt::printf("LAPACK info illegal value at: %d\n", info);
 
 }
 

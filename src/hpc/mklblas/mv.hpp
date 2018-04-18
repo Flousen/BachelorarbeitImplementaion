@@ -36,10 +36,11 @@ mv(const Alpha &alpha, const MatrixA<T> &A, const VectorX<T> &x,
     auto n = assertEqual(A.numCols(), x.length());
 
     char transa = A.incRow()==1 ? 'N' : 'T';
+    std::ptrdiff_t inc = transa == 'T' ? A.incRow() : A.incCol();
 
     assert(std::min(A.incRow(), A.incCol())==1);
 
-    gemv(transa, m, n, alpha, A.data(), A.incCol(), x.data(), x.inc(),
+    gemv(transa, m, n, alpha, A.data(), inc, x.data(), x.inc(),
          beta, y.data(), y.inc());
 }
 

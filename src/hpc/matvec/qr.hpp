@@ -157,7 +157,7 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
      W,
      T.view(hpc::matvec::UpLo::Upper),
      trans);
-// C := C - V * W'
+  // C := C - V * W'
   if(m > k){
     // C2 := C2 - V2 * W'
     mm(TMV(-1),
@@ -273,8 +273,10 @@ qr_blk2(MatrixA &&A, VectorTau &&tau)
   std::size_t mn = std::min(m,n);
 
   assert(tau.length() == mn);
-  std::size_t nb = 5 ; 
 
+  std::size_t nb = 5 ; 
+  //std::size_t nb = mn/2;
+  
   hpc::matvec::GeMatrix<TMA> T(nb, nb);
 
   if( nb < mn ){

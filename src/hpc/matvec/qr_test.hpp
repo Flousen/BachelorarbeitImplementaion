@@ -57,10 +57,14 @@ qr_error(MatrixA &&A, MatrixAqr &&Aqr, VectorTau &&tau){
 
   hpc::matvec::GeMatrix<double> Q(A.numRows(), A.numCols());
   makeQ(Aqr, tau, Q);
+  //fmt::printf("Q = \n");
+  //print(Q);
   
   std::size_t n = Aqr.numCols() ;
   hpc::matvec::GeMatrix<double> R(n, n);
   copy(Aqr.dim(n,n).view(UpLo::Upper), R);
+  //fmt::printf("R = \n");
+  //print(R);
 
   mm(1.0, Q,R,
      -1.0, nA);

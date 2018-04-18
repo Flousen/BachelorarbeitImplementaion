@@ -9,6 +9,8 @@
 #include <hpc/matvec/test/rand.hpp>
 #include <hpc/matvec/test/walltime.hpp>
 
+#include <hpc/mklblas.hpp>
+
 #define MAX_M 20 
 #define MAX_N 10 
 
@@ -32,12 +34,13 @@ main()
   fmt::printf("A = \n");
   hpc::matvec::print(A, "%9.4f");
 
+
   //qr_unblk(A,tauA);
   //hpc::mklblas::qr_blk_ref(A, tauA);
-  //hpc::mklblas::qr_unblk(A, tauA);
+  hpc::mklblas::qr_unblk(A, tauA);
   //hpc::mklblas::qr_blk(A, tauA);
   //hpc::matvec::qr_unblk(A, tauA);
-  hpc::matvec::qr_blke(A, tauA);
+  //hpc::matvec::qr_blke(A, tauA);
 
   fmt::printf("tauA = \n");
   hpc::matvec::print(tauA);

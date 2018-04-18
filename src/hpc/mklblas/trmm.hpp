@@ -1,5 +1,5 @@
-#ifndef HPC_MKLBLAS_MM_HPP
-#define HPC_MKLBLAS_MM_HPP
+#ifndef HPC_MKLBLAS_TRMM_HPP
+#define HPC_MKLBLAS_TRMM_HPP
 
 #include <cstddef>
 #include <hpc/assert.hpp>
@@ -17,7 +17,7 @@ void trmm(const char side, const char uplo, const char transa,
            double *b, const MKL_INT ldb)
 {
     dtrmm(&side, &uplo, &transa, &diag, &m, &n,
-          &alpha, a, &lda, b, &ldb)
+          &alpha, a, &lda, b, &ldb);
 
 }
 
@@ -28,13 +28,13 @@ template <typename Alpha,
                    Ge<MatrixB>
                  > = true>
 void
-mm(const Alpha &alpha, const MatrixA<T> &A, MatrixB &&B, bool trans = false)
+mm(const Alpha &alpha, const MatrixA<T> &A, MatrixB &&B, bool transflag = false)
 {
     assert(A.numCols() == B.numRows());
 
     const char side = 'L';
-    const char uplo = A.is_lower() ? 'U' : 'L';
-    const char trans = A.incRow()==1 ? 'N' : 'T';
+    const char uplo = A.is_lower() ? 'L' : 'U';
+    const char transa = A.incRow()==1 ? 'N' : 'T';
     const char diag = A.is_unit() ? 'U' : 'N' ;
     
     trmm(side, uplo, transa, diag, B.numRows(), B.numCols(),
@@ -49,12 +49,12 @@ template <typename Alpha,
                    Tr<MatrixB<T>>
                  > = true>
 void
-mm(const Alpha &alpha, MatrixA &&A, const MatrixB<T> &B, bool trans = false)
+mm(const Alpha &alpha, MatrixA &&A, const MatrixB<T> &B, bool transflag = false)
 {
     assert(A.numCols() == B.numRows());
     const char side = 'R';
-    const char uplo = B.is_lower() ? 'U' : 'L';
-    const char trans = B.incRow()==1 ? 'N' : 'T';
+    const char uplo = B.is_lower() ? 'L' : 'U';
+    const char transa = B.incRow()==1 ? 'N' : 'T';
     const char diag = B.is_unit() ? 'U' : 'N' ;
     
     dtrmm(side, uplo, transa, diag, A.numRows(), A.numCols(),
@@ -65,4 +65,4 @@ mm(const Alpha &alpha, MatrixA &&A, const MatrixB<T> &B, bool trans = false)
 
 } } // namespace mklblas, hpc
 
-#endif // HPC_MKLBLAS_MM_HPP
+#endif // HPC_MKLBLAS_TRMM_HPP

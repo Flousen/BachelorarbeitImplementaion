@@ -30,7 +30,7 @@ mv(const Alpha &alpha, const MatrixA<T> &A, const VectorX<T> &x)
 {
     assert(A.numCols()==x.length());
    
-    const char uplo = A.is_lower() ? 'U' : 'L';
+    const char uplo = A.is_lower() ? 'L' : 'U';
     const char trans = A.incRow()==1 ? 'N' : 'T';
     const char diag = A.is_unit() ? 'U' : 'N' ;
     trmv(uplo, trans, diag, A.numCols(),

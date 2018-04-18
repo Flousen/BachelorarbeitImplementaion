@@ -26,30 +26,22 @@ main()
     using namespace hpc::matvec;
 
     GeMatrix<double> A(MAX_M, MAX_N, Order::ColMajor);
-    DenseVector<double> x(A.numCols());
-    
+    GeMatrix<double> B(MAX_M, MAX_N, Order::ColMajor);
     GeMatrix<double> C(MAX_M, MAX_N, Order::ColMajor);
-    DenseVector<double> y(A.numCols());
-
     test::rand(A);
-    copy(A.row(0,0), x);
+    test::rand(B);
+    copy(B,C);
 
-    copy(A.row(0,0), y);
-    copy(A, C);
+    auto T = A.view(UpLo::Upper);
 
-    auto B = A.view(UpLo::Upper);
-    auto D = C.view(UpLo::Upper);
-
+    fmt::printf("T = \n"); print(T, "%9.4f");
     fmt::printf("B = \n"); print(B, "%9.4f");
-    fmt::printf("x = \n"); print(x, "%9.4f");
+    fmt::printf("C = \n"); print(C, "%9.4f");
     
-    fmt::printf("D = \n"); print(D, "%9.4f");
-    fmt::printf("y = \n"); print(y, "%9.4f");
+    //hpc::matvec::mm (1.0, T, B);    
+    hpc::mklblas::mm(1.0, T, C);    
     
-    hpc::matvec::mv(1.0, B, x);    
-    hpc::mklblas::mv(1.0, D, y);    
-    
-    fmt::printf("matvec A*x = \n"); print(x, "%9.4f");
-    fmt::printf("mkl A*x = \n"); print(y, "%9.4f");
+    fmt::printf("matvec = \n"); print(B, "%9.4f");
+    fmt::printf("mkl    = \n"); print(C, "%9.4f");
 
 }

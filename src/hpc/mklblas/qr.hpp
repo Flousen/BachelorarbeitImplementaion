@@ -46,7 +46,6 @@ void qr_unblk(MatrixA &&A, VectorTau &&tau)
   std::size_t m  = A.numRows();
   std::size_t n  = A.numCols();
   std::size_t mn = std::min(m,n);
-  fmt::printf("bin ich da\n");
   assert(tau.length() == mn);
 
   hpc::matvec::DenseVector<T> work(mn);
@@ -62,6 +61,7 @@ void qr_unblk(MatrixA &&A, VectorTau &&tau)
          A.col(i,i),
          T(0),
          work.block(i+1));
+  fmt::printf("bin ich da\n");
 
       hpc::mklblas::rank1(-tau(i),
             A.col(i,i),
@@ -250,7 +250,7 @@ qr_blke(MatrixA &&A, VectorTau &&tau)
     }
   }
   if ( i <= mn ){
-    qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(m-i));
+    qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(n-i));
   }
 }
 
