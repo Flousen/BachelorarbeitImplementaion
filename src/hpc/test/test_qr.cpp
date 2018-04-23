@@ -37,9 +37,9 @@ main()
 
   //qr_unblk(A,tauA);
   //hpc::mklblas::qr_blk_ref(A, tauA);
-  hpc::mklblas::qr_unblk(A, tauA);
-  //hpc::mklblas::qr_blk(A, tauA);
- // hpc::matvec::qr_unblk(A, tauA);
+  //hpc::mklblas::qr_unblk(A, tauA);
+  hpc::mklblas::qr_blk(A, tauA);
+  //hpc::matvec::qr_unblk(A, tauA);
   //hpc::matvec::qr_blke(A, tauA);
 
   fmt::printf("main bin ich da\n");

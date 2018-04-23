@@ -1,6 +1,7 @@
 #ifndef HPC_MKLBLAS_HPP
 #define HPC_MKLBLAS_HPP
 
+#include <hpc/mklblas/copy.hpp>
 #include <hpc/mklblas/dot.hpp>
 #include <hpc/mklblas/mm.hpp>
 #include <hpc/mklblas/mv.hpp>

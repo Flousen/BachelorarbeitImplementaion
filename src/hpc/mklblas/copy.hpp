@@ -15,7 +15,7 @@ void
 copy(MKL_INT n, const double *x, MKL_INT incx,
       double *y, MKL_INT incy)
 {
-  dcopy(&n, x, &incx, y, &incy)
+  dcopy(&n, x, &incx, y, &incy);
 }
 
 template <typename T, template<typename> class VectorX,
@@ -32,4 +32,4 @@ copy(const VectorX<T> &x, VectorY &&y)
 
 } } // namespace mklblas, hpc
 
-#endif // HPC_MKLBLAS_MV_HPP
+#endif // HPC_MKLBLAS_COPY_HPP
