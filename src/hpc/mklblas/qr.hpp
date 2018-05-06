@@ -25,13 +25,16 @@ householderVector(Alpha &alpha, VectorV &&v, Tau &tau)
   //auto dot = hpc::ulmblas::dot( v.length(),
   //            false, v.data(), v.inc(),
   //            false, v.data(), v.inc() );
+
   double dotprod = hpc::mklblas::dot(v,v);
+  //double dotprod = hpc::matvec::dot(v,v);
   if (dotprod == ElementType<VectorV>(0)){
     tau = Tau(0);
   } else {
     auto beta = -std::copysign(sqrt(alpha*alpha + dotprod),alpha);
     tau = (beta - alpha) / beta;
     hpc::mklblas::scal( 1/(alpha - beta), v);
+    //hpc::matvec::scal( 1/(alpha - beta), v);
     alpha = beta;
   }
   
@@ -51,18 +54,21 @@ void qr_unblk(MatrixA &&A, VectorTau &&tau)
   hpc::matvec::DenseVector<T> W(mn);
   for (std::size_t i = 0; i < n; ++i){
     hpc::mklblas::householderVector(A(i,i), A.col(i+1,i),tau(i));
+    //hpc::matvec::householderVector(A(i,i), A.col(i+1,i),tau(i));
     
     if (i < n && tau(i) != T(0)) {
       AII = A(i,i);
       A(i,i) = T(1);
       
-      hpc::mklblas::mv(T(1),
+      //hpc::mklblas::mv(T(1),
+      hpc::matvec::mv(T(1),
         A.block(i,i+1).view(hpc::matvec::Trans::view),
         A.col(i,i),
         T(0),
         W.block(i+1));
 
       hpc::mklblas::rank1(-tau(i),
+      //hpc::matvec::rank1(-tau(i),
         A.col(i,i),
         W.block(i+1),
         A.block(i,i+1));
@@ -71,7 +77,6 @@ void qr_unblk(MatrixA &&A, VectorTau &&tau)
     }
   }
 }
-
 
 // H  =  I - V * T * V'
 template <typename MatrixV, typename VectorTau, typename MatrixT>
@@ -93,7 +98,8 @@ larft(MatrixV &&V, VectorTau &&tau, MatrixT &&T)
       V(i,i) = TMV(1);
       
       // T(1:i-1,i) := - tau(i) * V(i:n,1:i-1)' * V(i:n,i)
-      hpc::mklblas::mv(-tau(i),
+      //hpc::mklblas::mv(-tau(i),
+      hpc::matvec::mv(-tau(i),
           V.block(i,0).dim(n-i,i).view(hpc::matvec::Trans::view),
           V.col(i,i),
           TMV(0),
@@ -103,6 +109,7 @@ larft(MatrixV &&V, VectorTau &&tau, MatrixT &&T)
       
       // T(1:i-1,i) := T(1:i-1,1:i-1) * T(1:i-1,i)
       hpc::mklblas::mv(TMV(1),
+      //hpc::matvec::mv(TMV(1),
           T.block(0,0).dim(i,i).view(hpc::matvec::UpLo::Upper),
           T.col(0,i).dim(i) );
      
@@ -130,34 +137,39 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
     hpc::mklblas::copy(C.row(j,0), W.col(0,j));
   }
   // W := W * V1
-  hpc::mklblas::mm(TMV(1),
+  //hpc::mklblas::mm(TMV(1),
+  hpc::matvec::mm(TMV(1),
       W,
       V.dim(k,k).view(hpc::matvec::UpLo::LowerUnit)
       );
   if(m > k){
     // W := W + C2'*V2
-    hpc::mklblas::mm(TMV(1),
+    //hpc::mklblas::mm(TMV(1),
+    hpc::matvec::mm(TMV(1),
         C.block(k,0).view(hpc::matvec::Trans::view),
         V.block(k,0),
         TMV(1),
         W);
   }
   // W :=  W * T
-  hpc::mklblas::mm(TMV(1),
+  //hpc::mklblas::mm(TMV(1),
+  hpc::matvec::mm(TMV(1),
      W,
      T.view(hpc::matvec::UpLo::Upper),
      trans);
 // C := C - V * W'
   if(m > k){
     // C2 := C2 - V2 * W'
-    hpc::mklblas::mm(TMV(-1),
+    //hpc::mklblas::mm(TMV(-1),
+    hpc::matvec::mm(TMV(-1),
        V.block(k,0),
        W.view(hpc::matvec::Trans::view),
        TMV(1),
        C.block(k,0));
   }
   // W := W * V1'
-  hpc::mklblas::mm(TMV(1),
+  //hpc::mklblas::mm(TMV(1),
+  hpc::matvec::mm(TMV(1),
      W,
      V.dim(k,k).view(hpc::matvec::Trans::view).view(hpc::matvec::UpLo::UpperUnit));
   // C1 := C1 - W'
@@ -190,8 +202,8 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
   if(nb >= nbmin && nb < mn && nx < mn){
     for (i = 0; i < mn-nx; i+=nb){
       std::size_t ib = std::min(mn-i+1, nb);
-      hpc::mklblas::qr_unblk_ref(A.block(i,i).dim(m-i,ib), tau.block(i).dim(ib));
-      //hpc::mklblas::qr_unblk(A.block(i,i).dim(m-i,ib), tau.block(i).dim(ib));
+      //hpc::mklblas::qr_unblk_ref(A.block(i,i).dim(m-i,ib), tau.block(i).dim(ib));
+      hpc::mklblas::qr_unblk(A.block(i,i).dim(m-i,ib), tau.block(i).dim(ib));
 
       if ( i + ib <= n){
         // Form the triangular factor of the block reflector
