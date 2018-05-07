@@ -137,8 +137,8 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
     hpc::mklblas::copy(C.row(j,0), W.col(0,j));
   }
   // W := W * V1
-  //hpc::mklblas::mm(TMV(1),
-  hpc::matvec::mm(TMV(1),
+  hpc::mklblas::mm(TMV(1),
+  //hpc::matvec::mm(TMV(1),
       W,
       V.dim(k,k).view(hpc::matvec::UpLo::LowerUnit)
       );
@@ -152,16 +152,16 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
         W);
   }
   // W :=  W * T
-  //hpc::mklblas::mm(TMV(1),
-  hpc::matvec::mm(TMV(1),
+  hpc::mklblas::mm(TMV(1),
+  //hpc::matvec::mm(TMV(1),
      W,
      T.view(hpc::matvec::UpLo::Upper),
      trans);
 // C := C - V * W'
   if(m > k){
     // C2 := C2 - V2 * W'
-    //hpc::mklblas::mm(TMV(-1),
-    hpc::matvec::mm(TMV(-1),
+    hpc::mklblas::mm(TMV(-1),
+    //hpc::matvec::mm(TMV(-1),
        V.block(k,0),
        W.view(hpc::matvec::Trans::view),
        TMV(1),
@@ -224,7 +224,6 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
   if ( i <= mn){
     hpc::mklblas::qr_unblk_ref(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(n-i));
   }
-  fmt::printf("schaff ich es hier her?\n");
 }
 
 /*

@@ -46,13 +46,16 @@ mm(const Alpha &alpha, const MatrixA<T> &A, const MatrixB<T> &B,
     char transA = A.incRow()==1 ? 'N' : 'T';
     char transB = B.incRow()==1 ? 'N' : 'T';
 
+    auto incColA = transA == 'N' ? A.incCol() : A.incRow();
+    auto incColB = transB == 'N' ? B.incCol() : B.incRow();
+    
     assert(std::min(A.incRow(), A.incCol())==1);
     assert(std::min(B.incRow(), B.incCol())==1);
     assert(C.incRow()==1);
 
     gemm(transA, transB, m, n, k, alpha,
-         A.data(), A.incCol(),
-         B.data(), B.incCol(),
+         A.data(), incColA,
+         B.data(), incColB,
          beta, C.data(), C.incCol());
 }
 
