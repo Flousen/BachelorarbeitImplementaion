@@ -58,7 +58,7 @@ main()
   
   test::rand(A);
 
-  auto qr = hpc::mklblas::qr_unblk_ref<GeMatrix<double> &, DenseVector<double> &>;
+  auto qr = hpc::mklblas::qr_blk<GeMatrix<double> &, DenseVector<double> &>;
   //auto qr = qr_blke<GeMatrix<double> &, DenseVector<double> &>;
 
   fmt::printf("%5s %5s "

@@ -37,17 +37,13 @@ mv(const Alpha &alpha, const MatrixA<T> &A, const VectorX<T> &x,
 
     char transa = A.incRow()==1 ? 'N' : 'T';
     std::ptrdiff_t incA = transa == 'N' ? A.incCol() : A.incRow();
+    std::size_t tn = transa == 'N' ? n : m;
+    std::size_t tm = transa == 'N' ? m : n;
+    
 
     assert(std::min(A.incRow(), A.incCol())==1);
-
-    //fmt::printf("A = \n");
-    //print(A);
-    //fmt::printf("x = \n");
-    //print(x);
-    //fmt::printf("y = \n");
-    //print(y);
     
-    gemv(transa, m, n, alpha, A.data(), incA, x.data(), x.inc(),
+    gemv(transa, tm, tn, alpha, A.data(), incA, x.data(), x.inc(),
          beta, y.data(), y.inc());
 }
 

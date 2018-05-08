@@ -60,8 +60,8 @@ void qr_unblk(MatrixA &&A, VectorTau &&tau)
       AII = A(i,i);
       A(i,i) = T(1);
      
-      //hpc::mklblas::mv(T(1),
-      hpc::matvec::mv(T(1),
+      hpc::mklblas::mv(T(1),
+      //hpc::matvec::mv(T(1),
         A.block(i,i+1).view(hpc::matvec::Trans::view),
         A.col(i,i),
         T(0),
@@ -98,8 +98,8 @@ larft(MatrixV &&V, VectorTau &&tau, MatrixT &&T)
       V(i,i) = TMV(1);
       
       // T(1:i-1,i) := - tau(i) * V(i:n,1:i-1)' * V(i:n,i)
-      //hpc::mklblas::mv(-tau(i),
-      hpc::matvec::mv(-tau(i),
+      hpc::mklblas::mv(-tau(i),
+      //hpc::matvec::mv(-tau(i),
           V.block(i,0).dim(n-i,i).view(hpc::matvec::Trans::view),
           V.col(i,i),
           TMV(0),
@@ -108,8 +108,8 @@ larft(MatrixV &&V, VectorTau &&tau, MatrixT &&T)
       V(i,i) = VII;
       
       // T(1:i-1,i) := T(1:i-1,1:i-1) * T(1:i-1,i)
-      hpc::mklblas::mv(TMV(1),
-      //hpc::matvec::mv(TMV(1),
+      //hpc::mklblas::mv(TMV(1),
+      hpc::matvec::mv(TMV(1),
           T.block(0,0).dim(i,i).view(hpc::matvec::UpLo::Upper),
           T.col(0,i).dim(i) );
      
@@ -168,10 +168,6 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
        C.block(k,0));
   }
   // W := W * V1'
-  //hpc::mklblas::mm(TMV(1),
-  //hpc::matvec::mm(TMV(1),
-  //   W,
-  //   V.dim(k,k).view(hpc::matvec::Trans::view).view(hpc::matvec::UpLo::UpperUnit));
  
   hpc::mklblas::mm(TMV(1),
   //hpc::matvec::mm(TMV(1),

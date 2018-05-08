@@ -32,7 +32,7 @@ mv(const Alpha &alpha, const MatrixA<T> &A, const VectorX<T> &x,
    
     assert(A.numRows()==y.length());
     assert(A.numCols()==x.length());
-
+    
     scal(beta, y);
     if (A.incRow()<A.incCol()) {
         // col major
