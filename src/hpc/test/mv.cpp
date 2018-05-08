@@ -57,9 +57,4 @@ main()
     fmt::printf("matvec = \n"); print(y, "%9.4f");
     fmt::printf("mkl = \n"); print(y1, "%9.4f");
 
-    fmt::printf("incRow = %d\n",A.incRow());
-    fmt::printf("incRow = %d\n",A.view(hpc::matvec::Trans::view).incRow());
-    fmt::printf("incCol = %d\n",A.incCol());
-    fmt::printf("incCol = %d\n",A.view(hpc::matvec::Trans::view).incCol());
-
 }

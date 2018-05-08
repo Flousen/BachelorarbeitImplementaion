@@ -34,9 +34,9 @@ mm(const Alpha &alpha, const MatrixA<T> &A, MatrixB &&B, bool transflag = false)
 
     char side = 'L';
     char uplo = A.is_lower() ? 'L' : 'U';
-    char transa = A.incRow()==1 ? 'N' : 'T';
+    char transa = transflag ? 'T' : 'N' ;
     char diag = A.is_unit() ? 'U' : 'N' ;
-    
+
     trmm(side, uplo, transa, diag, B.numRows(), B.numCols(),
          alpha, A.data(), A.incCol(), B.data(), B.incCol());
 
@@ -55,11 +55,13 @@ mm(const Alpha &alpha, MatrixA &&A, const MatrixB<T> &B, bool transflag = false)
     
     char side = 'R';
     char uplo = B.is_lower() ? 'L' : 'U';
-    char transa = B.incRow()==1 ? 'N' : 'T';
+    char transb = transflag ? 'T' : 'N' ;
     char diag = B.is_unit() ? 'U' : 'N' ;
     
-    trmm(side, uplo, transa, diag, A.numRows(), A.numCols(),
-          alpha, B.data(), B.incCol(), A.data(), A.incCol());
+    //fmt::printf("B = \n");
+    //print(B);
+    trmm(side, uplo, transb, diag, A.numRows(), A.numCols(),
+          alpha, B.data(), A.incCol(), A.data(), A.incCol());
 
 }
 

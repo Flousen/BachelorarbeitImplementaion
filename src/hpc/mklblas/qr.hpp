@@ -59,7 +59,7 @@ void qr_unblk(MatrixA &&A, VectorTau &&tau)
     if (i < n && tau(i) != T(0)) {
       AII = A(i,i);
       A(i,i) = T(1);
-      
+     
       //hpc::mklblas::mv(T(1),
       hpc::matvec::mv(T(1),
         A.block(i,i+1).view(hpc::matvec::Trans::view),
@@ -137,8 +137,8 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
     hpc::mklblas::copy(C.row(j,0), W.col(0,j));
   }
   // W := W * V1
-  hpc::mklblas::mm(TMV(1),
-  //hpc::matvec::mm(TMV(1),
+ // hpc::mklblas::mm(TMV(1),
+  hpc::matvec::mm(TMV(1),
       W,
       V.dim(k,k).view(hpc::matvec::UpLo::LowerUnit)
       );
@@ -152,8 +152,8 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
         W);
   }
   // W :=  W * T
-  hpc::mklblas::mm(TMV(1),
-  //hpc::matvec::mm(TMV(1),
+  //hpc::mklblas::mm(TMV(1),
+  hpc::matvec::mm(TMV(1),
      W,
      T.view(hpc::matvec::UpLo::Upper),
      trans);
@@ -169,9 +169,15 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
   }
   // W := W * V1'
   //hpc::mklblas::mm(TMV(1),
+  //hpc::matvec::mm(TMV(1),
+  //   W,
+  //   V.dim(k,k).view(hpc::matvec::Trans::view).view(hpc::matvec::UpLo::UpperUnit));
+  
+  //hpc::mklblas::mm(TMV(1),
   hpc::matvec::mm(TMV(1),
      W,
-     V.dim(k,k).view(hpc::matvec::Trans::view).view(hpc::matvec::UpLo::UpperUnit));
+     V.dim(k,k).view(hpc::matvec::UpLo::LowerUnit), true);
+ print(W); 
   // C1 := C1 - W'
   for(std::size_t j = 0; j < k; j++){
     for(std::size_t i = 0; i < n; i++){

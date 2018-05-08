@@ -32,6 +32,7 @@ main()
     test::rand(B);
     copy(B,C);
 
+    //auto T = A.view(Trans::view).view(UpLo::LowerUnit);
     auto T = A.view(UpLo::LowerUnit);
 
     fmt::printf("T = \n"); print(T, "%9.4f");
@@ -40,6 +41,8 @@ main()
     
     hpc::matvec::mm (1.0,  B, T, true);    
     hpc::mklblas::mm(1.0,  C, T, true);    
+    //hpc::matvec::mm (1.0,  B, T, false);    
+    //hpc::mklblas::mm(1.0,  C, T, false);    
     
     fmt::printf("matvec = \n"); print(B, "%9.4f");
     fmt::printf("mkl    = \n"); print(C, "%9.4f");

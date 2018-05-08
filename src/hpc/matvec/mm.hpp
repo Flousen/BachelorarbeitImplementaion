@@ -94,7 +94,7 @@ mm(const Alpha &alpha, MatrixA &&A, const MatrixB<T> &B, bool trans = false)
     copy(B,TrTmp);
 
     GeMatrix<T> ATmp(A.numRows(),A.numCols());
-    
+   
     if ( trans ){
       ulmblas::gemm(A.numRows(), A.numCols(), B.numCols(),
                   alpha,

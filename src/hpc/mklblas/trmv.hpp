@@ -33,8 +33,11 @@ mv(const Alpha &alpha, const MatrixA<T> &A, const VectorX<T> &x)
     const char uplo = A.is_lower() ? 'L' : 'U';
     const char trans = A.incRow()==1 ? 'N' : 'T';
     const char diag = A.is_unit() ? 'U' : 'N' ;
+
+    auto incA = trans == 'N' ? A.incCol() : A.incRow();
+
     trmv(uplo, trans, diag, A.numCols(),
-         A.data(), A.incCol(), x.data(), x.inc());
+         A.data(), incA, x.data(), x.inc());
 }
 
 } } // namespace mklblas, hpc
