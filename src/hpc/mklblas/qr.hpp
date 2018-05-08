@@ -195,8 +195,8 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
   std::size_t mn = std::min(m,n);
 
   assert(tau.length() == mn);
-  std::size_t nb = 5 ; 
-  std::size_t nx = 5 ;
+  std::size_t nb = 32 ; 
+  std::size_t nx = 32 ;
   std::size_t nbmin = 2 ;
 
   hpc::matvec::GeMatrix<TMA> T(nb, nb);

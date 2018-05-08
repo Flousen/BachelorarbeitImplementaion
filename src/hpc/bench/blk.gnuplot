@@ -1,4 +1,4 @@
-set terminal svg size 900, 500
+set terminal svg size 900, 500 background rgb 'white'
 set output "blk.svg"
 set xlabel "Matrix dim A: M=N"
 set title "blk"
