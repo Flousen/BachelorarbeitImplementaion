@@ -58,13 +58,15 @@ main()
   
   test::rand(A);
 
-  //auto qr = hpc::mklblas::qr_blk<GeMatrix<double> &, DenseVector<double> &>;
-  auto qr = hpc::mklblas::qr_blk_ref<GeMatrix<double> &, DenseVector<double> &>;
+  auto qr_unblk = hpc::mklblas::qr_unblk<GeMatrix<double> &, DenseVector<double> &>;
+  auto qr_unblk_ref = hpc::mklblas::qr_unblk_ref<GeMatrix<double> &, DenseVector<double> &>;
 
   fmt::printf("%5s %5s "
+              "%10s %10s %10s "
               "%10s %10s %10s\n",
               "M", "N",
-              "Error 1", "Time 1", "MFLOPS 1");
+              "Error unblk", "Time ", "MFLOPS ",
+              "Error ref", "Time ", "MFLOPS ");
 
 
   for (std::size_t m=MIN_M, n=MIN_N;
@@ -80,9 +82,13 @@ main()
 
     auto A0   = A.dim(m, n);
     fmt::printf("%5d %5d ", m, n);
-    auto tst1 = test_qr(A0, qr);
-
-    fmt::printf( "%lf %10.2f %10.2f\n",
+    auto tst1 = test_qr(A0, qr_unblk);
+    auto tst2 = test_qr(A0, qr_unblk_ref);
+    
+    fmt::printf( "%lf %10.2f %10.2f ",
                 tst1.first, tst1.second, flops/tst1.second);
+    
+    fmt::printf( "%lf %10.2f %10.2f\n",
+                tst2.first, tst2.second, flops/tst2.second);
   }
 }
