@@ -31,8 +31,9 @@ main()
 
   hpc::mklblas::scal(2.0, tauA);
 
-  fmt::printf("A = \n");
+  fmt::printf("A = [\n");
   hpc::matvec::print(A, "%9.4f");
+  fmt::printf("]\n");
 
 
   //qr_unblk(A,tauA);
@@ -45,8 +46,9 @@ main()
 
   fmt::printf("tauA = \n");
   hpc::matvec::print(tauA);
-  fmt::printf("qr(A) = \n");
+  fmt::printf("qr(A) B = [ \n");
   hpc::matvec::print(A, "%9.4f");
+  fmt::printf("]\n");
   
   double err = hpc::matvec::qr_error(B,A,tauA);
   fmt::printf("m = %lf\n", A.numRows());

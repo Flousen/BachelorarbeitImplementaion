@@ -39,8 +39,8 @@ main()
     fmt::printf("B = \n"); print(B, "%9.4f");
     fmt::printf("C = \n"); print(C, "%9.4f");
     
-    hpc::matvec::mm (1.0,  B, T, true);    
-    hpc::mklblas::mm(1.0,  C, T, true);    
+    hpc::matvec::mm (1.0,  B, T,true);    
+    hpc::mklblas::mm(1.0,  C, T,true);    
     //hpc::matvec::mm (1.0,  B, T, false);    
     //hpc::mklblas::mm(1.0,  C, T, false);    
     

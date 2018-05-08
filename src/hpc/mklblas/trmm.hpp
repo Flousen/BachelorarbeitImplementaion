@@ -61,7 +61,7 @@ mm(const Alpha &alpha, MatrixA &&A, const MatrixB<T> &B, bool transflag = false)
     //fmt::printf("B = \n");
     //print(B);
     trmm(side, uplo, transb, diag, A.numRows(), A.numCols(),
-          alpha, B.data(), A.incCol(), A.data(), A.incCol());
+          alpha, B.data(), B.incCol(), A.data(), A.incCol());
 
 }
 
