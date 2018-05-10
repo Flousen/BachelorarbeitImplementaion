@@ -11,7 +11,7 @@
 
 #include <hpc/mklblas.hpp>
 
-#define MAX_M 20 
+#define MAX_M 10 
 #define MAX_N 10 
 
 int

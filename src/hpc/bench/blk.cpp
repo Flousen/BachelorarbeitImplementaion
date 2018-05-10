@@ -41,10 +41,10 @@ test_qr(const MatrixA<T> &A0, qr_func qr)
 
 } } // namespace matvec, hpc
 
-#define MIN_M 20
+#define MIN_M 10
 #define MIN_N 10
 #define INC_M 10
-#define INC_N 5 
+#define INC_N 10 
 #define MAX_M 1000
 #define MAX_N 1000
 
@@ -62,7 +62,7 @@ main()
   auto qr_blk_ref = hpc::mklblas::qr_blk_ref<GeMatrix<double> &, DenseVector<double> &>;
 
   fmt::printf("%5s %5s "
-              "%10s %10s %10s\n"
+              "%10s %10s %10s "
               "%10s %10s %10s\n",
               "M", "N",
               "Error blk", "Time ", "MFLOPS ",
@@ -84,6 +84,11 @@ main()
     fmt::printf("%5d %5d ", m, n);
     auto tst1 = test_qr(A0, qr_blk);
     auto tst2 = test_qr(A0, qr_blk_ref);
+
+    if (tst1.first > 1 || tst2.first > 1){
+      std::fprintf(stderr, "%s", "Error larger 1\n");
+      return 1;
+    }
     
     fmt::printf( "%lf %10.2f %10.2f ",
                 tst1.first, tst1.second, flops/tst1.second);
