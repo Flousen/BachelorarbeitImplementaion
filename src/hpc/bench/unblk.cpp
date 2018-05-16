@@ -41,10 +41,10 @@ test_qr(const MatrixA<T> &A0, qr_func qr)
 
 } } // namespace matvec, hpc
 
-#define MIN_M 20
+#define MIN_M 10
 #define MIN_N 10
-#define INC_M 10
-#define INC_N 5 
+#define INC_M 20
+#define INC_N 10 
 #define MAX_M 1000
 #define MAX_N 1000
 

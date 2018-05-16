@@ -41,10 +41,10 @@ test_qr(const MatrixA<T> &A0, qr_func qr)
 
 } } // namespace matvec, hpc
 
-#define MIN_M 20
+#define MIN_M 10
 #define MIN_N 10
 #define INC_M 10
-#define INC_N 5 
+#define INC_N 10
 #define MAX_M 1000
 #define MAX_N 1000
 
@@ -59,6 +59,7 @@ main()
   test::rand(A);
 
   //auto qr = hpc::mklblas::qr_blk<GeMatrix<double> &, DenseVector<double> &>;
+  //auto qr = hpc::matvec::qr_blk<GeMatrix<double> &, DenseVector<double> &>;
   auto qr = hpc::mklblas::qr_blk_ref<GeMatrix<double> &, DenseVector<double> &>;
 
   fmt::printf("%5s %5s "

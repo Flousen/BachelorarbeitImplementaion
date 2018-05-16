@@ -11,8 +11,8 @@
 
 #include <hpc/mklblas.hpp>
 
-#define MAX_M 10 
-#define MAX_N 10 
+#define MAX_M 100 
+#define MAX_N 100 
 
 int
 main()
@@ -44,9 +44,9 @@ main()
   //hpc::matvec::qr_blk(A, tauA);
 
 
-  fmt::printf("tauA = \n");
-  hpc::matvec::print(tauA);
-  fmt::printf("qr(A) B = [ \n");
+  //fmt::printf("tauA = \n");
+  //hpc::matvec::print(tauA);
+  fmt::printf("Aqr = [ \n");
   hpc::matvec::print(A, "%9.4f");
   fmt::printf("]\n");
   

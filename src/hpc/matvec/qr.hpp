@@ -169,7 +169,10 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
   // W := W * V1'
   mm(TMV(1),
      W,
-     V.dim(k,k).view(hpc::matvec::Trans::view).view(hpc::matvec::UpLo::UpperUnit));
+     V.dim(k,k).view(hpc::matvec::UpLo::LowerUnit),
+     true);
+  
+
   // C1 := C1 - W'
   for(std::size_t j = 0; j < k; j++){
     for(std::size_t i = 0; i < n; i++){
@@ -191,12 +194,12 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
   std::size_t mn = std::min(m,n);
 
   assert(tau.length() == mn);
-  std::size_t nb = 5 ; 
-  std::size_t nx = 5 ;
+  std::size_t nb = 32 ; 
+  std::size_t nx = 128 ;
   std::size_t nbmin = 2 ;
 
   hpc::matvec::GeMatrix<TMA> T(nb, nb);
-  std::size_t i = 1;
+  std::size_t i = 0;
   if(nb >= nbmin && nb < mn && nx < mn){
     for (i = 0; i < mn-nx; i+=nb){
       std::size_t ib = std::min(mn-i+1, nb);

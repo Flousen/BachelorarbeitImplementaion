@@ -18,4 +18,7 @@
 #include <hpc/mklblas/trmm.hpp>
 #include <hpc/mklblas/trmv.hpp>
 
+#include <hpc/mklblas/larft.hpp>
+#include <hpc/mklblas/larfb.hpp>
+
 #endif // HPC_MKLBLAS_HPP

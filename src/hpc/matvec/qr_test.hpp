@@ -19,6 +19,8 @@
 #include <hpc/matvec/gematrix.hpp>
 #include <hpc/matvec/traits.hpp>
 
+#include <hpc/mklblas/larft.hpp>
+
 namespace hpc { namespace matvec {
 
 
@@ -42,7 +44,10 @@ void makeQ(MatrixA &&A, VectorTau &&tau, MatrixQ &&Q){
   hpc::matvec::GeMatrix<TM> T(n, n);
   
   // appy H(1) *** H(n) to eye
-  larft(A, tau, T);
+  hpc::mklblas::larft_ref(A, tau, T);
+  //hpc::mklblas::larfb_ref(A, T, Q);
+  
+  //larft(A, tau, T);
   larfb(A, T, Q);
   
 }

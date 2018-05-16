@@ -144,8 +144,8 @@ larfb(MatrixV &&V, MatrixT &&T, MatrixC &&C, bool trans = false)
       );
   if(m > k){
     // W := W + C2'*V2
-    //hpc::mklblas::mm(TMV(1),
-    hpc::matvec::mm(TMV(1),
+    hpc::mklblas::mm(TMV(1),
+    //hpc::matvec::mm(TMV(1),
         C.block(k,0).view(hpc::matvec::Trans::view),
         V.block(k,0),
         TMV(1),
@@ -196,11 +196,11 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
 
   assert(tau.length() == mn);
   std::size_t nb = 32 ; 
-  std::size_t nx = 32 ;
+  std::size_t nx = 128 ;
   std::size_t nbmin = 2 ;
 
-  hpc::matvec::GeMatrix<TMA> T(nb, nb);
-  std::size_t i = 1;
+  hpc::matvec::GeMatrix<TMA> T(nb, nb, hpc::matvec::Order::ColMajor);
+  std::size_t i = 0;
   if(nb >= nbmin && nb < mn && nx < mn){
     for (i = 0; i < mn-nx; i+=nb){
       std::size_t ib = std::min(mn-i+1, nb);
@@ -224,7 +224,7 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
     }
   }
   if ( i <= mn){
-    hpc::mklblas::qr_unblk_ref(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(n-i));
+    hpc::mklblas::qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(n-i));
   }
 }
 
