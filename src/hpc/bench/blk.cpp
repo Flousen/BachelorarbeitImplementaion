@@ -42,8 +42,8 @@ test_qr(const MatrixA<T> &A0, qr_func qr)
 
 #define MIN_M 10
 #define MIN_N 10
-#define INC_M 10
-#define INC_N 10 
+#define INC_M 20
+#define INC_N 20 
 #define MAX_M 1000
 #define MAX_N 1000
 
@@ -74,20 +74,19 @@ main()
   {
     double maxMN = std::max(m,n);
     double minMN = std::min(m,n);
-    double flops = maxMN*minMN*minMN
-                 - ((minMN*minMN*minMN) / 3.0)
-                 - (minMN*minMN) / 2.0;
-    flops /= 1000000.0;
+    double flops = n*n* ( m -  n / 3 ) ;
+    //double flops = maxMN*minMN*minMN
+    //             - ((minMN*minMN*minMN) / 3.0)
+    //             - (minMN*minMN) / 2.0;
+    //flops /= 1000000.0;
+    flops /= (double) 1e6;
 
     auto A0   = A.dim(m, n);
     fmt::printf("%5d %5d ", m, n);
     auto tst1 = test_qr(A0, qr_blk);
     auto tst2 = test_qr(A0, qr_blk_ref);
 
-    //if (tst1.first > 1 || tst2.first > 1){
-    //  std::fprintf(stderr, "%s", "Error larger 1\n");
-    //  return 1;
-    //}
+    std::fprintf(stderr, "%s %d\n", "n = ",n);
     
     fmt::printf( "%lf %10.2f %10.2f ",
                 tst1.first, tst1.second, flops/tst1.second);

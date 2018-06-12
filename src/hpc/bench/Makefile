@@ -23,6 +23,8 @@ CPPFLAGS += -I$(IncludeDir) -DMKL_ILP64
 LDLIBS += -lmkl_intel_ilp64 -lmkl_core -lmkl_sequential -lm -lpthread
 
 all:	$(TEST)
+	./blk > blk.data && gnuplot blk.gnuplot
+	./unblk > unblk.data && gnuplot unblk.gnuplot
 
 clean:
 	$(RM) $(TEST) $(TEST_OBJ)

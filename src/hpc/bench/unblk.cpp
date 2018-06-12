@@ -75,15 +75,17 @@ main()
   {
     double maxMN = std::max(m,n);
     double minMN = std::min(m,n);
-    double flops = maxMN*minMN*minMN
-                 - ((minMN*minMN*minMN) / 3.0)
-                 - (minMN*minMN) / 2.0;
+    double flops = n*n* ( m -  n / 3 );
+    //double flops = maxMN*minMN*minMN
+    //             - ((minMN*minMN*minMN) / 3.0)
+    //             - (minMN*minMN) / 2.0;
     flops /= 1000000.0;
 
     auto A0   = A.dim(m, n);
     fmt::printf("%5d %5d ", m, n);
     auto tst1 = test_qr(A0, qr_unblk);
     auto tst2 = test_qr(A0, qr_unblk_ref);
+    std::fprintf(stderr, "%s %d\n", "n = ",n);
     
     fmt::printf( "%lf %10.2f %10.2f ",
                 tst1.first, tst1.second, flops/tst1.second);
@@ -91,4 +93,5 @@ main()
     fmt::printf( "%lf %10.2f %10.2f\n",
                 tst2.first, tst2.second, flops/tst2.second);
   }
+  std::fprintf(stderr, "%s", "successful\n");
 }
