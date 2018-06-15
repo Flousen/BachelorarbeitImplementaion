@@ -62,10 +62,11 @@ main()
 
   fmt::printf("%5s %5s "
               "%10s %10s %10s "
-              "%10s %10s %10s\n",
+              "%10s %10s %10s %10s\n",
               "M", "N",
               "Error blk", "Time ", "MFLOPS ",
-              "Error ref", "Time ", "MFLOPS ");
+              "Error ref", "Time ", "MFLOPS ",
+              "Max MFLOPs");
 
 
   for (std::size_t m=MIN_M, n=MIN_N;
@@ -74,11 +75,12 @@ main()
   {
     double maxMN = std::max(m,n);
     double minMN = std::min(m,n);
-    double flops = n*n* ( m -  n / 3 ) ;
-    //double flops = maxMN*minMN*minMN
-    //             - ((minMN*minMN*minMN) / 3.0)
-    //             - (minMN*minMN) / 2.0;
+    //double flops = n*n* ( m -  n / 3 ) ;
+    double flops = maxMN*minMN*minMN
+                 - ((minMN*minMN*minMN) / 3.0)
+                 - (minMN*minMN) / 2.0;
     //flops /= 1000000.0;
+    flops *= 2 ;
     flops /= (double) 1e6;
 
     auto A0   = A.dim(m, n);
@@ -91,8 +93,9 @@ main()
     fmt::printf( "%lf %10.2f %10.2f ",
                 tst1.first, tst1.second, flops/tst1.second);
     
-    fmt::printf( "%lf %10.2f %10.2f\n",
+    fmt::printf( "%lf %10.2f %10.2f",
                 tst2.first, tst2.second, flops/tst2.second);
+    fmt::printf(" 25600\n");
   }
   std::fprintf(stderr, "%s", "successful\n");
 }
