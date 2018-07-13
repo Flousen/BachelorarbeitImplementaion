@@ -21,6 +21,19 @@ rand(MatrixA<T> &A)
     });
 }
 
+//template <template<typename> class MatrixA, typename T,
+//          Require< Ge<MatrixA<T>> > = true>
+//void
+//init(MatrixA<T> &A)
+//{
+//  for( T p = 0 , size_t i=0; i < A.numRows; ++i, ++p){
+//    for( size_t j=0; j < A.numCols; ++j){
+//      A(i,j) = p;
+//    }
+//  }
+//}
+
+
 template <template<typename> class MatrixA, typename T,
           Require< Ge<MatrixA<std::complex<T>>> > = true>
 void
