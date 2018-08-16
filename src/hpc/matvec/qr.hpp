@@ -5,7 +5,6 @@
 #include <cstddef>
 #include <type_traits>
 
-
 #include <hpc/matvec/iamax.hpp>
 #include <hpc/matvec/rank1.hpp>
 #include <hpc/matvec/scal.hpp>
@@ -18,7 +17,6 @@
 #include <hpc/matvec/densevector.hpp>
 #include <hpc/matvec/gematrix.hpp>
 #include <hpc/matvec/traits.hpp>
-
 
 namespace hpc { namespace matvec {
 
@@ -43,7 +41,6 @@ householderVector(Alpha &alpha, VectorV &&v, Tau &tau)
     scal(1/(alpha - beta),v);
     alpha = beta;
   }
-  
 }
 
 template <typename MatrixA, typename VectorTau,
@@ -81,7 +78,6 @@ void qr_unblk(MatrixA &&A, VectorTau &&tau)
     }
   }
 }
-
 
 // H  =  I - V * T * V'
 template <typename MatrixV, typename VectorTau, typename MatrixT>
@@ -207,10 +203,10 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
       if ( i + ib <= n){
         // Form the triangular factor of the block reflector
         // H = H(i) H(i+1) . . . H(i+ib-1)
-
         larft(A.block(i,i).dim(m-i,ib),
                tau.block(i).dim(ib),
                T.dim(ib,ib));
+
         // Apply H' to A(i:m,i+ib:n) from the left
         larfb(A.block(i,i).dim(m-i,ib),
               T.dim(ib,ib),
@@ -224,6 +220,7 @@ qr_blk(MatrixA &&A, VectorTau &&tau)
     qr_unblk(A.block(i,i).dim(m-i,n-i), tau.block(i).dim(n-i));
   }
 }
+
 template <typename MatrixA, typename VectorTau,
           Require< Ge<MatrixA>, Dense<VectorTau> > = true>
 void

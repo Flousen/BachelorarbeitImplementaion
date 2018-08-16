@@ -1,3 +1,4 @@
 #!/bin/bash
-gnuplot blk.gnuplot
-gnuplot unblk.gnuplot
+gnuplot gnu/blk.gnuplot
+gnuplot gnu/blkbs.gnuplot
+gnuplot gnu/unblk.gnuplot

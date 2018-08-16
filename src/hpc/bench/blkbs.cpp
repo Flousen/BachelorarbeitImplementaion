@@ -8,6 +8,8 @@
 #include <hpc/matvec/test/error.hpp>
 #include <hpc/matvec/test/rand.hpp>
 #include <hpc/matvec/test/walltime.hpp>
+#include <hpc/mklblas/larft.hpp>
+#include <hpc/mklblas/larfb.hpp>
 
 #include <hpc/mklblas.hpp>
 
@@ -17,21 +19,18 @@ template <typename T, template<typename> class MatrixA,
           typename qr_func,
           Require< Ge<MatrixA<T>> > = true>
 std::pair<double, double>
-test_qr(const MatrixA<T> &A0, qr_func qr)
+test_qr(const MatrixA<T> &A0, qr_func qr, std::size_t bs = 32)
 {
-    GeMatrix<double>  A(A0.numRows(), A0.numCols(),Order::ColMajor);
-    DenseVector<double> tauA(std::min(A.numRows(),A.numCols()));
+    GeMatrix<double>  A(A0.numRows(), A0.numCols(), Order::ColMajor);
+    DenseVector<double> tauA(std::min(A.numRows(), A.numCols()));
 
     copy(A0, A);
 
     test::WallTime<double> timer;
-    //fmt::printf("befor\n"); print(A);
 
     timer.tic();
-    qr(A, tauA);
+    qr(A, tauA,bs);
     double time = timer.toc();
-
-    //fmt::printf("after\n"); print(A);
 
     double err  = qr_error(A0, A, tauA);
 
@@ -44,7 +43,7 @@ test_qr(const MatrixA<T> &A0, qr_func qr)
 #define MIN_M 10
 #define MIN_N 10
 #define INC_M 20
-#define INC_N 10 
+#define INC_N 20 
 #define MAX_M 1000
 #define MAX_N 1000
 
@@ -55,18 +54,18 @@ main()
 
   GeMatrix<double> A(MAX_M, MAX_N, Order::ColMajor);
   DenseVector<double> tauA(std::min(A.numRows(),A.numCols()));
-  
+
   test::rand(A);
 
-  auto qr_unblk = hpc::mklblas::qr_unblk<GeMatrix<double> &, DenseVector<double> &>;
-  auto qr_unblk_ref = hpc::mklblas::qr_unblk_ref<GeMatrix<double> &, DenseVector<double> &>;
+  auto qr_blk = hpc::mklblas::qr_blk_bs<GeMatrix<double> &, DenseVector<double> &>;
 
   fmt::printf("%5s %5s "
               "%10s %10s %10s "
-              "%10s %10s %10s\n",
+              "%10s %10s %10s %10s\n",
               "M", "N",
-              "Error unblk", "Time ", "MFLOPS ",
-              "Error ref", "Time ", "MFLOPS ");
+              "Error blk", "Time ", "MFLOPS ",
+              "Error ref", "Time ", "MFLOPS ",
+              "Max MFLOPs");
 
 
   for (std::size_t m=MIN_M, n=MIN_N;
@@ -74,27 +73,26 @@ main()
        m+=INC_M, n+=INC_N)
   {
     double flops = n*(23/6 + m + n/2 + n*(m-n/3) + n*(5/6 + n/2 + m - n/3));
-    //double flops = n*n* ( m -  n / 3 );
+    //double flops = n*n* ( m -  n / 3 ) ;
     //double flops = maxMN*minMN*minMN
     //             - ((minMN*minMN*minMN) / 3.0)
     //             - (minMN*minMN) / 2.0;
-    //flops *= 2;
-    flops /= 1000000.0;
-
-    auto A0   = A.dim(m, n);
+    //flops /= 1000000.0;
+    flops /= (double) 1e6;
     fmt::printf("%5d %5d ", m, n);
-    auto tst1 = test_qr(A0, qr_unblk);
-    auto tst2 = test_qr(A0, qr_unblk_ref);
-    std::fprintf(stderr, "%s %ld\n", "n = ",n);
-    
-    fmt::printf( "%lf %10.2f %10.2f ",
-                tst1.first, tst1.second, flops/tst1.second);
-    
-    fmt::printf( "%lf %10.2f %10.2f",
-                tst2.first, tst2.second, flops/tst2.second);
 
-    fmt::printf("  25600");
-    fmt::printf("\n");
+    for (std::size_t bs = 8; bs <= 128; bs *= 2){
+      auto A0   = A.dim(m, n);
+      auto tst1 = test_qr(A0, qr_blk,bs);
+
+      
+      fmt::printf( "  %10.2f ",flops/tst1.second);
+      
+      //fmt::printf( "%lf %10.2f %10.2f ",
+      //            tst1.first, tst1.second, flops/tst1.second);
+    }
+    std::fprintf(stderr, "%s %ld\n", "n = ",n);
+    fmt::printf(" 25600\n");
   }
   std::fprintf(stderr, "%s", "successful\n");
 }

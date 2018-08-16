@@ -73,8 +73,6 @@ main()
        m<=MAX_M && n<=MAX_N;
        m+=INC_M, n+=INC_N)
   {
-    double maxMN = std::max(m,n);
-    double minMN = std::min(m,n);
     double flops = n*(23/6 + m + n/2 + n*(m-n/3) + n*(5/6 + n/2 + m - n/3));
     //double flops = n*n* ( m -  n / 3 ) ;
     //double flops = maxMN*minMN*minMN
@@ -88,7 +86,7 @@ main()
     auto tst1 = test_qr(A0, qr_blk);
     auto tst2 = test_qr(A0, qr_blk_ref);
 
-    std::fprintf(stderr, "%s %d\n", "n = ",n);
+    std::fprintf(stderr, "%s %ld\n", "n = ",n);
     
     fmt::printf( "%lf %10.2f %10.2f ",
                 tst1.first, tst1.second, flops/tst1.second);
