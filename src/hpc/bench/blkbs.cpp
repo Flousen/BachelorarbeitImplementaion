@@ -72,12 +72,10 @@ main()
        m<=MAX_M && n<=MAX_N;
        m+=INC_M, n+=INC_N)
   {
-    double flops = n*(23/6 + m + n/2 + n*(m-n/3) + n*(5/6 + n/2 + m - n/3));
-    //double flops = n*n* ( m -  n / 3 ) ;
-    //double flops = maxMN*minMN*minMN
-    //             - ((minMN*minMN*minMN) / 3.0)
-    //             - (minMN*minMN) / 2.0;
-    //flops /= 1000000.0;
+    double flops = n * ( 23/6 + m + n/2 + n * ( m - n/3 ) + n * ( 5/6 + n/2 + m - n/3 ) );
+    //double flops = n * ( 23/6 + m + n/2 + n * ( m - n/3 ) + 5/6 + n * ( 1/2 + ( m - n/3 ) ) );
+    //double flops = n*n*m;
+    
     flops /= (double) 1e6;
     fmt::printf("%5d %5d ", m, n);
 
